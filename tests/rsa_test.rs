@@ -1,4 +1,4 @@
-use did_crypto_wasm::{algorithms::Algorithm, signer::sign, verifier::verify};
+use did_crypto::{algorithms::Algorithm, signer::sign, verifier::verify};
 
 const PRIVATE_KEY: &'static str = "-----BEGIN RSA PRIVATE KEY-----
 MIIJKAIBAAKCAgEAg4TeWkvIRLAfwH2DsPgZDNwQVasBzEy4EIFBbVBZOfuCxYk0
