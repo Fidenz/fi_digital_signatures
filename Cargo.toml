@@ -19,9 +19,9 @@ hex = "0.4.3"
 hex-literal = "0.4.1"
 k256 = "0.13.3"
 libsecp256k1 = "0.7.1"
-p256 = "0.13.2"
-p384 = "0.13.0"
-p521 = "0.13.3"
+p256 = { version = "0.13.2", features = ["ecdsa-core", "ecdsa"] }
+p384 = { version = "0.13.0", features = ["ecdsa-core"] }
+p521 = { version = "0.13.3", features = ["ecdsa-core"] }
 pem-rfc7468 = "0.7.0"
 rand = "0.8.5"
 rsa = { version = "0.9.6", features = ["sha2"] }
