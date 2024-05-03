@@ -9,3 +9,22 @@ edition = "2021"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
+base64 = "0.22.1"
+base64-url = "3.0.0"
+cose-rust-plus = "0.2.0"
+ed25519-compact = { version = "2.1.1", features = ["ed25519"] }
+elliptic-curve = "0.13.8"
+getrandom = { version = "0.2.14", features = ["js"] }
+hex = "0.4.3"
+hex-literal = "0.4.1"
+libsecp256k1 = "0.7.1"
+pem-rfc7468 = "0.7.0"
+rand = "0.8.5"
+ring = "0.17.8"
+rsa = { version = "0.9.6", features = ["sha2"] }
+sha2 = "0.10.8"
+wasm-bindgen = "0.2.92"
+x509-parser = "0.16.0"
+
+[features]
+wasm = []

@@ -1,15 +1,16 @@
+#[derive(PartialEq, Eq)]
 pub enum Algorithm {
     RS256,
-    RS318,
+    RS384,
     RS512,
     PS256,
-    PS318,
+    PS384,
     PS512,
     ES256,
-    ES318,
-    ES512,
-    ES512K,
-    ES512KR,
+    ES384,
+    // ES512,
+    // ES256K,
+    // ES256KR,
     EdDSA,
 }
 
@@ -17,16 +18,16 @@ impl Algorithm {
     pub fn to_str<'a>(&self) -> &'a str {
         match self {
             Algorithm::RS256 => "RS256",
-            Algorithm::RS318 => "RS318",
+            Algorithm::RS384 => "RS384",
             Algorithm::RS512 => "RS512",
             Algorithm::PS256 => "PS256",
-            Algorithm::PS318 => "PS318",
+            Algorithm::PS384 => "PS384",
             Algorithm::PS512 => "PS512",
             Algorithm::ES256 => "ES256",
-            Algorithm::ES318 => "ES318",
-            Algorithm::ES512 => "ES512",
-            Algorithm::ES512K => "ES512K",
-            Algorithm::ES512KR => "ES512K-R",
+            Algorithm::ES384 => "ES384",
+            // Algorithm::ES512 => "ES512",
+            // Algorithm::ES256K => "ES256K",
+            // Algorithm::ES256KR => "ES256K-R",
             Algorithm::EdDSA => "EdDSA",
         }
     }
@@ -34,16 +35,16 @@ impl Algorithm {
     pub fn from_str(alg: &str) -> Option<Self> {
         match alg {
             "RS256" => Some(Algorithm::RS256),
-            "RS318" => Some(Algorithm::RS318),
+            "RS384" => Some(Algorithm::RS384),
             "RS512" => Some(Algorithm::RS512),
             "PS256" => Some(Algorithm::PS256),
-            "PS318" => Some(Algorithm::PS318),
+            "PS384" => Some(Algorithm::PS384),
             "PS512" => Some(Algorithm::PS512),
             "ES256" => Some(Algorithm::ES256),
-            "ES318" => Some(Algorithm::ES318),
-            "ES512" => Some(Algorithm::ES512),
-            "ES512K" => Some(Algorithm::ES512K),
-            "ES512K-R" => Some(Algorithm::ES512KR),
+            "ES384" => Some(Algorithm::ES384),
+            // "ES512" => Some(Algorithm::ES512),
+            // "ES256K" => Some(Algorithm::ES256K),
+            // "ES256K-R" => Some(Algorithm::ES256KR),
             "EdDSA" => Some(Algorithm::EdDSA),
             _ => None,
         }
@@ -52,16 +53,16 @@ impl Algorithm {
     pub fn get_family(&self) -> AlgorithmFamily {
         match self {
             Algorithm::RS256 => AlgorithmFamily::RSA,
-            Algorithm::RS318 => AlgorithmFamily::RSA,
+            Algorithm::RS384 => AlgorithmFamily::RSA,
             Algorithm::RS512 => AlgorithmFamily::RSA,
             Algorithm::PS256 => AlgorithmFamily::RSA,
-            Algorithm::PS318 => AlgorithmFamily::RSA,
+            Algorithm::PS384 => AlgorithmFamily::RSA,
             Algorithm::PS512 => AlgorithmFamily::RSA,
             Algorithm::ES256 => AlgorithmFamily::EC,
-            Algorithm::ES318 => AlgorithmFamily::EC,
-            Algorithm::ES512 => AlgorithmFamily::EC,
-            Algorithm::ES512K => AlgorithmFamily::EC,
-            Algorithm::ES512KR => AlgorithmFamily::Special,
+            Algorithm::ES384 => AlgorithmFamily::EC,
+            // Algorithm::ES512 => AlgorithmFamily::EC,
+            // Algorithm::ES256K => AlgorithmFamily::EC,
+            // Algorithm::ES256KR => AlgorithmFamily::Special,
             Algorithm::EdDSA => AlgorithmFamily::OKP,
         }
     }
