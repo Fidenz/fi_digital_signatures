@@ -12,6 +12,7 @@ crate-type = ["cdylib", "rlib"]
 base64 = "0.22.1"
 base64-url = "3.0.0" 
 ed25519-compact = { version = "2.1.1", features = ["ed25519"] }
+ed25519-dalek = { version = "2.1.1", features = ["pkcs8", "pem"] }
 elliptic-curve = { version = "0.13.8", features = ["pem", "pkcs8"] }
 getrandom = { version = "0.2.14", features = ["js"] }
 hex = "0.4.3"

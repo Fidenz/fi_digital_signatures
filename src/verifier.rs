@@ -1,5 +1,4 @@
-use crate::crypto::ecdsa::verify_ec;
-use crate::crypto::rsa::verify_rsa;
+use crate::crypto::{ecdsa::verify_ec, eddsa::verify_eddsa, rsa::verify_rsa};
 use crate::{
     algorithms::{Algorithm, AlgorithmFamily},
     errors::Error,
@@ -15,6 +14,7 @@ pub fn verify(
     match alg_family {
         AlgorithmFamily::RSA => verify_rsa(message, signature, key, alg),
         AlgorithmFamily::EC => verify_ec(message, signature, key, alg),
+        AlgorithmFamily::OKP => verify_eddsa(message, signature, key),
         _ => return Err(Error::UNKNOWN_ALGORITHM),
     }
 }
