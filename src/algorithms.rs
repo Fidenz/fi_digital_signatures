@@ -9,7 +9,7 @@ pub enum Algorithm {
     ES256,
     ES384,
     ES512,
-    // ES256K,
+    ES256K,
     // ES256KR,
     EdDSA,
 }
@@ -26,7 +26,7 @@ impl Algorithm {
             Algorithm::ES256 => "ES256",
             Algorithm::ES384 => "ES384",
             Algorithm::ES512 => "ES512",
-            //  Algorithm::ES256K => "ES256K",
+            Algorithm::ES256K => "ES256K",
             // Algorithm::ES256KR => "ES256K-R",
             Algorithm::EdDSA => "EdDSA",
         }
@@ -43,7 +43,7 @@ impl Algorithm {
             "ES256" => Some(Algorithm::ES256),
             "ES384" => Some(Algorithm::ES384),
             "ES512" => Some(Algorithm::ES512),
-            // "ES256K" => Some(Algorithm::ES256K),
+            "ES256K" => Some(Algorithm::ES256K),
             // "ES256K-R" => Some(Algorithm::ES256KR),
             "EdDSA" => Some(Algorithm::EdDSA),
             _ => None,
@@ -61,7 +61,7 @@ impl Algorithm {
             Algorithm::ES256 => AlgorithmFamily::EC,
             Algorithm::ES384 => AlgorithmFamily::EC,
             Algorithm::ES512 => AlgorithmFamily::EC,
-            // Algorithm::ES256K => AlgorithmFamily::EC,
+            Algorithm::ES256K => AlgorithmFamily::EC,
             // Algorithm::ES256KR => AlgorithmFamily::Special,
             Algorithm::EdDSA => AlgorithmFamily::OKP,
         }

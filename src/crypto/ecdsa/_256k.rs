@@ -1,19 +1,14 @@
-use std::str::FromStr;
-
 use crate::{errors::Error, log};
-use elliptic_curve::pkcs8::DecodePublicKey;
-use p521::{
-    ecdsa::{
-        signature::{Signer, Verifier},
-        Signature, SigningKey, VerifyingKey,
-    },
-    NistP521,
+use elliptic_curve::pkcs8::{DecodePrivateKey, DecodePublicKey};
+use k256::{
+    ecdsa::{signature::Signer, signature::Verifier, Signature, SigningKey, VerifyingKey},
+    Secp256k1,
 };
 
-pub fn ec_512_sign(message: String, key: String) -> Result<String, Error> {
+pub fn ec_256k_sign(message: String, key: String) -> Result<String, Error> {
     let ec_key = match key.starts_with("-----BEGIN EC PRIVATE KEY-----") {
         true => {
-            let key_scalar: elliptic_curve::SecretKey<NistP521> =
+            let key_scalar: elliptic_curve::SecretKey<Secp256k1> =
                 match elliptic_curve::SecretKey::from_sec1_pem(key.as_str()) {
                     Ok(val) => val,
                     Err(error) => {
@@ -31,8 +26,8 @@ pub fn ec_512_sign(message: String, key: String) -> Result<String, Error> {
             }
         }
         false => {
-            let key_scalar: elliptic_curve::SecretKey<NistP521> =
-                match elliptic_curve::SecretKey::from_str(key.as_str()) {
+            let key_scalar: elliptic_curve::SecretKey<Secp256k1> =
+                match elliptic_curve::SecretKey::from_pkcs8_pem(key.as_str()) {
                     Ok(val) => val,
                     Err(error) => {
                         log::error(error.to_string().as_str());
@@ -50,7 +45,7 @@ pub fn ec_512_sign(message: String, key: String) -> Result<String, Error> {
         }
     };
 
-    let sig_result: Result<Signature, p521::ecdsa::Error> = ec_key.try_sign(message.as_bytes());
+    let sig_result: Result<Signature, k256::ecdsa::Error> = ec_key.try_sign(message.as_bytes());
     let signature = match sig_result {
         Ok(val) => val,
         Err(error) => {
@@ -62,8 +57,8 @@ pub fn ec_512_sign(message: String, key: String) -> Result<String, Error> {
     Ok(base64_url::encode(signature.to_bytes().as_slice()))
 }
 
-pub fn ec_512_verify(message: String, sig: String, key: String) -> Result<bool, Error> {
-    let key_scalar: elliptic_curve::PublicKey<NistP521> =
+pub fn ec_256k_verify(message: String, sig: String, key: String) -> Result<bool, Error> {
+    let key_scalar: elliptic_curve::PublicKey<Secp256k1> =
         match elliptic_curve::PublicKey::from_public_key_pem(key.as_str()) {
             Ok(val) => val,
             Err(error) => {
@@ -71,6 +66,7 @@ pub fn ec_512_verify(message: String, sig: String, key: String) -> Result<bool, 
                 return Err(Error::EC_PEM_ERROR);
             }
         };
+
     let ec_key = match VerifyingKey::from_sec1_bytes(&key_scalar.to_sec1_bytes()) {
         Ok(val) => val,
         Err(error) => {
@@ -95,7 +91,7 @@ pub fn ec_512_verify(message: String, sig: String, key: String) -> Result<bool, 
         }
     };
 
-    let verify_result: Result<(), p256::ecdsa::Error> =
+    let verify_result: Result<(), k256::ecdsa::Error> =
         ec_key.verify(message.as_bytes(), &signature);
     if verify_result.is_ok() {
         return Ok(true);
