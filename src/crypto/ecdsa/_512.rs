@@ -40,7 +40,7 @@ pub fn ec_512_sign(message: String, key: String) -> Result<String, Error> {
                     }
                 };
 
-            match SigningKey::from_slice(&key_scalar.as_scalar_primitive().to_bytes()) {
+            match SigningKey::from_bytes(&key_scalar.as_scalar_primitive().to_bytes()) {
                 Ok(val) => val,
                 Err(error) => {
                     log::error(error.to_string().as_str());
