@@ -1,4 +1,6 @@
-#[derive(PartialEq, Eq)]
+use serde::{Deserialize, Serialize};
+
+#[derive(PartialEq, Eq, Serialize, Deserialize, Copy, Clone)]
 pub enum Algorithm {
     RS256,
     RS384,
