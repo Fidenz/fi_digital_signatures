@@ -1,1 +1,1 @@
-# did-crypto-wasm
+# did-crypto
