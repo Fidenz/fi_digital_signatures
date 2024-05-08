@@ -3,6 +3,7 @@ use std::str::FromStr;
 use chrono::Utc;
 use did_crypto::{
     algorithms::Algorithm,
+    crypto::ecdsa::_512::{P512SigningKey, P512VerifyingKey},
     jwt::{Header, Payload, JWT},
 };
 use serde_json::Value;
@@ -48,7 +49,7 @@ pub fn test_jwt_validate_success() {
         signature: None,
     };
 
-    match jwt.sign(String::from(PRIVATE_KEY)) {
+    match jwt.sign(P512SigningKey::from_pem(PRIVATE_KEY).unwrap()) {
         Ok(()) => {}
         Err(error) => {
             println!("{}", error);
@@ -64,7 +65,7 @@ pub fn test_jwt_validate_success() {
         }
     };
 
-    let validated = match jwt.validate(String::from(PUBLIC_KEY)) {
+    let validated = match jwt.validate(P512VerifyingKey::from_pem(PUBLIC_KEY).unwrap()) {
         Ok(val) => val,
         Err(error) => {
             println!("{}", error);
@@ -99,7 +100,7 @@ pub fn test_jwt_validate_expire() {
         signature: None,
     };
 
-    match jwt.sign(String::from(PRIVATE_KEY)) {
+    match jwt.sign(P512SigningKey::from_pem(PRIVATE_KEY).unwrap()) {
         Ok(()) => {}
         Err(error) => {
             println!("{}", error);
@@ -115,7 +116,7 @@ pub fn test_jwt_validate_expire() {
         }
     };
 
-    let validated = match jwt.validate(String::from(PUBLIC_KEY)) {
+    let validated = match jwt.validate(P512VerifyingKey::from_pem(PUBLIC_KEY).unwrap()) {
         Ok(val) => val,
         Err(error) => {
             println!("{}", error);

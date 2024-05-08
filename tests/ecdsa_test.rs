@@ -1,4 +1,14 @@
-use did_crypto::{algorithms::Algorithm, signer::sign, verifier::verify};
+use did_crypto::{
+    algorithms::Algorithm,
+    crypto::ecdsa::{
+        _256k::{P256kSigningKey, P256kVerifyingKey},
+        _256::{P256SigningKey, P256VerifyingKey},
+        _384::{P384SigningKey, P384VerifyingKey},
+        _512::{P512SigningKey, P512VerifyingKey},
+    },
+    signer::sign,
+    verifier::verify,
+};
 
 const PUBLIC_KEY_256: &'static str = "-----BEGIN PUBLIC KEY-----
 MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEEVs/o5+uQbTjL3chynL4wXgUg2R9
@@ -56,10 +66,10 @@ const EC512_CONTENT: &'static str = "eyJhbGciOiJFUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdW
 const EC256K_CONTENT: &'static str = "eyJhbGciOiJFUzI1Ni1LIiwidHlwIjoiSldUIn0=.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0=";
 
 #[test]
-pub fn ec256_test() {
+pub fn ec256_signing_and_verifying() {
     let sig_result = sign(
         String::from(EC256_CONTENT),
-        String::from(PRIVATE_KEY_256),
+        P256SigningKey::from_pem(PRIVATE_KEY_256).unwrap(),
         Algorithm::ES256,
     );
 
@@ -74,7 +84,7 @@ pub fn ec256_test() {
     assert!(match verify(
         String::from(EC256_CONTENT),
         signature,
-        String::from(PUBLIC_KEY_256),
+        P256VerifyingKey::from_pem(PUBLIC_KEY_256).unwrap(),
         Algorithm::ES256
     ) {
         Ok(val) => val,
@@ -86,10 +96,10 @@ pub fn ec256_test() {
 }
 
 #[test]
-pub fn ec384_test() {
+pub fn ec384_signing_and_verifying() {
     let sig_result = sign(
         String::from(EC384_CONTENT),
-        String::from(PRIVATE_KEY_384),
+        P384SigningKey::from_pem(PRIVATE_KEY_384).unwrap(),
         Algorithm::ES384,
     );
 
@@ -104,7 +114,7 @@ pub fn ec384_test() {
     assert!(match verify(
         String::from(EC384_CONTENT),
         signature,
-        String::from(PUBLIC_KEY_384),
+        P384VerifyingKey::from_pem(PUBLIC_KEY_384).unwrap(),
         Algorithm::ES384
     ) {
         Ok(val) => val,
@@ -116,10 +126,10 @@ pub fn ec384_test() {
 }
 
 #[test]
-pub fn ec512_test() {
+pub fn ec512_signing_and_verifying() {
     let sig_result = sign(
         String::from(EC512_CONTENT),
-        String::from(PRIVATE_KEY_512),
+        P512SigningKey::from_pem(PRIVATE_KEY_512).unwrap(),
         Algorithm::ES512,
     );
 
@@ -131,12 +141,10 @@ pub fn ec512_test() {
         }
     };
 
-    println!("{}", signature);
-
     assert!(match verify(
         String::from(EC512_CONTENT),
         signature,
-        String::from(PUBLIC_KEY_512),
+        P512VerifyingKey::from_pem(PUBLIC_KEY_512).unwrap(),
         Algorithm::ES512
     ) {
         Ok(val) => val,
@@ -148,10 +156,10 @@ pub fn ec512_test() {
 }
 
 #[test]
-pub fn ec256k_test() {
+pub fn ec256k_signing_and_verifying() {
     let sig_result = sign(
         String::from(EC256K_CONTENT),
-        String::from(PRIVATE_KEY_256K),
+        P256kSigningKey::from_pem(PRIVATE_KEY_256K).unwrap(),
         Algorithm::ES256K,
     );
 
@@ -163,12 +171,10 @@ pub fn ec256k_test() {
         }
     };
 
-    println!("{}", signature);
-
     assert!(match verify(
         String::from(EC256K_CONTENT),
         signature,
-        String::from(PUBLIC_KEY_256K),
+        P256kVerifyingKey::from_pem(PUBLIC_KEY_256K).unwrap(),
         Algorithm::ES256K
     ) {
         Ok(val) => val,

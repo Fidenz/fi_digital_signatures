@@ -1,5 +1,5 @@
 pub mod algorithms;
-mod crypto;
+pub mod crypto;
 mod errors;
 pub mod jwt;
 mod log;

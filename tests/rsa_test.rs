@@ -1,4 +1,9 @@
-use did_crypto::{algorithms::Algorithm, signer::sign, verifier::verify};
+use did_crypto::{
+    algorithms::Algorithm,
+    crypto::rsa::{RsaSigningKey, RsaVerifyingKey},
+    signer::sign,
+    verifier::verify,
+};
 
 const PRIVATE_KEY: &'static str = "-----BEGIN RSA PRIVATE KEY-----
 MIIJKAIBAAKCAgEAg4TeWkvIRLAfwH2DsPgZDNwQVasBzEy4EIFBbVBZOfuCxYk0
@@ -78,7 +83,7 @@ const PS512_CONTENT: &'static str = "eyJhbGciOiJQUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdW
 pub fn test_rsa256_signing_and_verifying() {
     let sig_result = sign(
         String::from(RSA256_CONTENT),
-        String::from(PRIVATE_KEY),
+        RsaSigningKey::from_pem(PRIVATE_KEY).unwrap(),
         Algorithm::RS256,
     );
 
@@ -93,7 +98,7 @@ pub fn test_rsa256_signing_and_verifying() {
     match verify(
         String::from(RSA256_CONTENT),
         String::from(signature),
-        String::from(PUBLIC_KEY),
+        RsaVerifyingKey::from_pem(PUBLIC_KEY).unwrap(),
         Algorithm::RS256,
     ) {
         Ok(val) => assert!(val),
@@ -107,7 +112,7 @@ pub fn test_rsa256_signing_and_verifying() {
 pub fn test_rsa384_signing_and_verifying() {
     let sig_result = sign(
         String::from(RSA384_CONTENT),
-        String::from(PRIVATE_KEY),
+        RsaSigningKey::from_pem(PRIVATE_KEY).unwrap(),
         Algorithm::RS384,
     );
 
@@ -122,7 +127,7 @@ pub fn test_rsa384_signing_and_verifying() {
     match verify(
         String::from(RSA384_CONTENT),
         String::from(signature),
-        String::from(PUBLIC_KEY),
+        RsaVerifyingKey::from_pem(PUBLIC_KEY).unwrap(),
         Algorithm::RS384,
     ) {
         Ok(val) => assert!(val),
@@ -136,7 +141,7 @@ pub fn test_rsa384_signing_and_verifying() {
 pub fn test_rsa512_signing_and_verifying() {
     let sig_result = sign(
         String::from(RSA512_CONTENT),
-        String::from(PRIVATE_KEY),
+        RsaSigningKey::from_pem(PRIVATE_KEY).unwrap(),
         Algorithm::RS512,
     );
 
@@ -151,7 +156,7 @@ pub fn test_rsa512_signing_and_verifying() {
     match verify(
         String::from(RSA512_CONTENT),
         String::from(signature),
-        String::from(PUBLIC_KEY),
+        RsaVerifyingKey::from_pem(PUBLIC_KEY).unwrap(),
         Algorithm::RS512,
     ) {
         Ok(val) => assert!(val),
@@ -162,10 +167,10 @@ pub fn test_rsa512_signing_and_verifying() {
 }
 
 #[test]
-pub fn test_ps256_signing() {
+pub fn test_ps256_signing_and_verifying() {
     let sig_result = sign(
         String::from(PS256_CONTENT),
-        String::from(PRIVATE_KEY),
+        RsaSigningKey::from_pem(PRIVATE_KEY).unwrap(),
         Algorithm::PS256,
     );
 
@@ -180,7 +185,7 @@ pub fn test_ps256_signing() {
     match verify(
         String::from(PS256_CONTENT),
         String::from(signature),
-        String::from(PUBLIC_KEY),
+        RsaVerifyingKey::from_pem(PUBLIC_KEY).unwrap(),
         Algorithm::PS256,
     ) {
         Ok(val) => assert!(val),
@@ -191,10 +196,10 @@ pub fn test_ps256_signing() {
 }
 
 #[test]
-pub fn test_ps384_signing() {
+pub fn test_ps384_signing_and_verifying() {
     let sig_result = sign(
         String::from(PS384_CONTENT),
-        String::from(PRIVATE_KEY),
+        RsaSigningKey::from_pem(PRIVATE_KEY).unwrap(),
         Algorithm::PS384,
     );
 
@@ -209,7 +214,7 @@ pub fn test_ps384_signing() {
     match verify(
         String::from(PS384_CONTENT),
         String::from(signature),
-        String::from(PUBLIC_KEY),
+        RsaVerifyingKey::from_pem(PUBLIC_KEY).unwrap(),
         Algorithm::PS384,
     ) {
         Ok(val) => assert!(val),
@@ -220,10 +225,10 @@ pub fn test_ps384_signing() {
 }
 
 #[test]
-pub fn test_ps512_signing() {
+pub fn test_ps512_signing_and_verifying() {
     let sig_result = sign(
         String::from(PS512_CONTENT),
-        String::from(PRIVATE_KEY),
+        RsaSigningKey::from_pem(PRIVATE_KEY).unwrap(),
         Algorithm::PS512,
     );
 
@@ -238,7 +243,7 @@ pub fn test_ps512_signing() {
     match verify(
         String::from(PS512_CONTENT),
         String::from(signature),
-        String::from(PUBLIC_KEY),
+        RsaVerifyingKey::from_pem(PUBLIC_KEY).unwrap(),
         Algorithm::PS512,
     ) {
         Ok(val) => assert!(val),

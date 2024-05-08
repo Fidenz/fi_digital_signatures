@@ -1,4 +1,8 @@
-use crate::{algorithms::Algorithm, errors::Error};
+use crate::{
+    algorithms::Algorithm,
+    crypto::{SignFromKey, VerifyFromKey},
+    errors::Error,
+};
 
 use self::{
     _256k::{ec_256k_sign, ec_256k_verify},
@@ -7,12 +11,12 @@ use self::{
     _512::{ec_512_sign, ec_512_verify},
 };
 
-mod _256;
-mod _256k;
-mod _384;
-mod _512;
+pub mod _256;
+pub mod _256k;
+pub mod _384;
+pub mod _512;
 
-pub fn sign_ec(message: String, key: String, alg: Algorithm) -> Result<String, Error> {
+pub fn sign_ec(message: String, key: impl SignFromKey, alg: Algorithm) -> Result<String, Error> {
     match alg {
         Algorithm::ES256 => ec_256_sign(message, key),
         Algorithm::ES384 => ec_384_sign(message, key),
@@ -25,7 +29,7 @@ pub fn sign_ec(message: String, key: String, alg: Algorithm) -> Result<String, E
 pub fn verify_ec(
     message: String,
     signature: String,
-    key: String,
+    key: impl VerifyFromKey,
     alg: Algorithm,
 ) -> Result<bool, Error> {
     match alg {

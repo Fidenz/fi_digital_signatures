@@ -1,4 +1,11 @@
-use crate::{algorithms::Algorithm, errors::Error, log, signer::sign, verifier::verify};
+use crate::{
+    algorithms::Algorithm,
+    crypto::{SignFromKey, VerifyFromKey},
+    errors::Error,
+    log,
+    signer::sign,
+    verifier::verify,
+};
 use base64::{engine::general_purpose::STANDARD, Engine};
 use chrono::{DateTime, Utc};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
@@ -123,7 +130,7 @@ impl JWT {
         }
     }
 
-    pub fn sign(&mut self, private_key: String) -> Result<(), Error> {
+    pub fn sign(&mut self, private_key: impl SignFromKey) -> Result<(), Error> {
         let content = format!(
             "{}.{}",
             self.header.to_base64_encoded(),
@@ -173,7 +180,7 @@ impl JWT {
         Ok(now < exp_time)
     }
 
-    pub fn validate(&self, public_key: String) -> Result<bool, Error> {
+    pub fn validate(&self, public_key: impl VerifyFromKey) -> Result<bool, Error> {
         let algorithm = self.header.alg;
 
         let signature = match &self.signature {
@@ -210,7 +217,10 @@ impl JWT {
         Self::check_if_expired(exp)
     }
 
-    pub fn validate_token(token_str: &str, public_key: String) -> Result<(Self, bool), Error> {
+    pub fn validate_token(
+        token_str: &str,
+        public_key: impl VerifyFromKey,
+    ) -> Result<(Self, bool), Error> {
         let token = match Self::from_token(token_str) {
             Ok(val) => val,
             Err(error) => return Err(error),

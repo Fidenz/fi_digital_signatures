@@ -1,4 +1,9 @@
-use did_crypto::{algorithms::Algorithm, signer::sign, verifier::verify};
+use did_crypto::{
+    algorithms::Algorithm,
+    crypto::eddsa::{EDDSASigningKey, EDDSAVerifyingKey},
+    signer::sign,
+    verifier::verify,
+};
 
 const PRIVATE_KEY: &'static str = "-----BEGIN PRIVATE KEY-----
 MC4CAQAwBQYDK2VwBCIEIKp/Jj0KGmcaTAbqIoAME5HdiXQXTwHQ5ahI/lG90bz4
@@ -13,10 +18,10 @@ MCowBQYDK2VwAyEAe233GXWVDV6hWsCQxX1GL3PTpIZE+88sbV24OK3xNrU=
 const CONTENT: &'static str = "eyJhbGciOiJFRDI1NTE5IiwidHlwIjoiSldUIn0=.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0=";
 
 #[test]
-pub fn eddsa_test() {
+pub fn eddsa_signing_and_verifying() {
     let sig_result = sign(
         String::from(CONTENT),
-        String::from(PRIVATE_KEY),
+        EDDSASigningKey::from_pem(PRIVATE_KEY).unwrap(),
         Algorithm::EdDSA,
     );
 
@@ -28,12 +33,10 @@ pub fn eddsa_test() {
         }
     };
 
-    println!("{}", signature);
-
     assert!(match verify(
         String::from(CONTENT),
         signature,
-        String::from(PUBLIC_KEY),
+        EDDSAVerifyingKey::from_pem(PUBLIC_KEY).unwrap(),
         Algorithm::EdDSA
     ) {
         Ok(val) => val,
