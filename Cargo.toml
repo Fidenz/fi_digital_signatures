@@ -3,6 +3,12 @@ name = "did-crypto"
 version = "0.0.1"
 edition = "2021"
 repository = "https://github.com/fidenz-ravindu/did-crypto"
+authors = ["Ravindu <ravindu.w@gmail.com"]
+description = "Cryptography library for rust" 
+readme = "README.md"
+license = "MIT OR Apache-2.0"
+keywords = ["cryptography", "crypto", "jwt", "sign", "verify"]
+categories = ["cryptography"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
