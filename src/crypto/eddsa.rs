@@ -41,6 +41,17 @@ impl EDDSASigningKey {
 
         Ok(EDDSASigningKey { key: pkc8_key })
     }
+
+    pub fn from_bytes(bytes: &mut [u8]) -> Result<Self, Error> {
+        if bytes.len() != 32 {
+            return Err(Error::PRIVATE_KEY_IDENTIFICATION_ERROR);
+        }
+
+        let ec_bytes: [u8; 32] = [0; 32];
+        bytes.copy_from_slice(&ec_bytes);
+        let ec_key = SigningKey::from_bytes(&ec_bytes);
+        Ok(EDDSASigningKey { key: ec_key })
+    }
 }
 
 pub struct EDDSAVerifyingKey {
@@ -92,6 +103,23 @@ impl EDDSAVerifyingKey {
         };
 
         Ok(EDDSAVerifyingKey { key: pkc8_key })
+    }
+
+    pub fn from_bytes(bytes: &mut [u8]) -> Result<Self, Error> {
+        if bytes.len() != 32 {
+            return Err(Error::PUBLIC_KEY_IDENTIFICATION_ERROR);
+        }
+
+        let ec_bytes: [u8; 32] = [0; 32];
+        bytes.copy_from_slice(&ec_bytes);
+        let ec_key = match VerifyingKey::from_bytes(&ec_bytes) {
+            Ok(val) => val,
+            Err(error) => {
+                log::error(error.to_string().as_str());
+                return Err(Error::PUBLIC_KEY_IDENTIFICATION_ERROR);
+            }
+        };
+        Ok(EDDSAVerifyingKey { key: ec_key })
     }
 }
 

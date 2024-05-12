@@ -78,6 +78,17 @@ impl P512SigningKey {
 
         Ok(P512SigningKey { key: ec_key })
     }
+
+    pub fn from_bytes(bytes: &[u8]) -> Result<Self, Error> {
+        let ec_key = match SigningKey::from_slice(bytes) {
+            Ok(val) => val,
+            Err(error) => {
+                log::error(error.to_string().as_str());
+                return Err(Error::PUBLIC_KEY_IDENTIFICATION_ERROR);
+            }
+        };
+        Ok(P512SigningKey { key: ec_key })
+    }
 }
 
 pub struct P512VerifyingKey {
@@ -129,6 +140,18 @@ impl P512VerifyingKey {
                 }
             };
         let ec_key = match VerifyingKey::from_sec1_bytes(&key_scalar.to_sec1_bytes()) {
+            Ok(val) => val,
+            Err(error) => {
+                log::error(error.to_string().as_str());
+                return Err(Error::PUBLIC_KEY_IDENTIFICATION_ERROR);
+            }
+        };
+
+        Ok(P512VerifyingKey { key: ec_key })
+    }
+
+    pub fn from_bytes(bytes: &[u8]) -> Result<Self, Error> {
+        let ec_key = match VerifyingKey::from_sec1_bytes(bytes) {
             Ok(val) => val,
             Err(error) => {
                 log::error(error.to_string().as_str());
