@@ -1,6 +1,8 @@
 use crate::{
     algorithms::{Algorithm, AlgorithmFamily},
-    crypto::{ecdsa::verify_ec, eddsa::verify_eddsa, rsa::verify_rsa, VerifyFromKey},
+    crypto::{
+        ecdsa::verify_ec, eddsa::verify_eddsa, hmac::verify_hmac, rsa::verify_rsa, VerifyFromKey,
+    },
     errors::Error,
 };
 
@@ -12,6 +14,7 @@ pub fn verify(
 ) -> Result<bool, Error> {
     let alg_family = alg.get_family();
     match alg_family {
+        AlgorithmFamily::HMAC => verify_hmac(message, signature, key, alg),
         AlgorithmFamily::EC => verify_ec(message, signature, key, alg),
         AlgorithmFamily::RSA => verify_rsa(message, signature, key, alg),
         AlgorithmFamily::OKP => verify_eddsa(message, signature, key, alg),

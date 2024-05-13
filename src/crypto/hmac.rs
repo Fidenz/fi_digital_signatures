@@ -17,6 +17,7 @@ use sha2::{
 use super::SignFromKey;
 use super::VerifyFromKey;
 
+#[derive(Clone)]
 pub struct HMACKey {
     key: String,
 }
@@ -102,7 +103,7 @@ impl SignFromKey for HMACKey {
             Algorithm::HS256 => self.hmac_sign::<Sha256>(content),
             Algorithm::HS384 => self.hmac_sign::<Sha384>(content),
             Algorithm::HS512 => self.hmac_sign::<Sha512>(content),
-            _ => panic!(),
+            _ => Err(Error::UNKNOWN_ALGORITHM),
         }
     }
 }
@@ -118,7 +119,20 @@ impl VerifyFromKey for HMACKey {
             Algorithm::HS256 => self.hmac_verify::<Sha256>(content, signature),
             Algorithm::HS384 => self.hmac_verify::<Sha384>(content, signature),
             Algorithm::HS512 => self.hmac_verify::<Sha512>(content, signature),
-            _ => panic!(),
+            _ => Err(Error::UNKNOWN_ALGORITHM),
         }
     }
+}
+
+pub fn sign_hmac(message: String, key: impl SignFromKey, alg: Algorithm) -> Result<String, Error> {
+    key.sign(message, alg)
+}
+
+pub fn verify_hmac(
+    message: String,
+    signature: String,
+    key: impl VerifyFromKey,
+    alg: Algorithm,
+) -> Result<bool, Error> {
+    key.verify(message, signature, alg)
 }
