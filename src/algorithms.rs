@@ -2,6 +2,9 @@ use serde::{Deserialize, Serialize};
 
 #[derive(PartialEq, Eq, Serialize, Deserialize, Copy, Clone)]
 pub enum Algorithm {
+    HS256,
+    HS384,
+    HS512,
     RS256,
     RS384,
     RS512,
@@ -19,6 +22,9 @@ pub enum Algorithm {
 impl Algorithm {
     pub fn to_str<'a>(&self) -> &'a str {
         match self {
+            Algorithm::HS256 => "HS256",
+            Algorithm::HS384 => "HS384",
+            Algorithm::HS512 => "HS512",
             Algorithm::RS256 => "RS256",
             Algorithm::RS384 => "RS384",
             Algorithm::RS512 => "RS512",
@@ -36,6 +42,9 @@ impl Algorithm {
 
     pub fn from_str(alg: &str) -> Option<Self> {
         match alg {
+            "HS256" => Some(Algorithm::HS256),
+            "HS384" => Some(Algorithm::HS384),
+            "HS512" => Some(Algorithm::HS512),
             "RS256" => Some(Algorithm::RS256),
             "RS384" => Some(Algorithm::RS384),
             "RS512" => Some(Algorithm::RS512),
@@ -54,6 +63,9 @@ impl Algorithm {
 
     pub fn get_family(&self) -> AlgorithmFamily {
         match self {
+            Algorithm::HS256 => AlgorithmFamily::HMAC,
+            Algorithm::HS384 => AlgorithmFamily::HMAC,
+            Algorithm::HS512 => AlgorithmFamily::HMAC,
             Algorithm::RS256 => AlgorithmFamily::RSA,
             Algorithm::RS384 => AlgorithmFamily::RSA,
             Algorithm::RS512 => AlgorithmFamily::RSA,
@@ -71,9 +83,26 @@ impl Algorithm {
 }
 
 pub enum AlgorithmFamily {
+    HMAC,
     EC,
     RSA,
     OKP,
     Special,
     None,
+}
+
+impl AlgorithmFamily {
+    pub fn to_str(&self) -> &str {
+        match self {
+            AlgorithmFamily::HMAC => "HMAC",
+            AlgorithmFamily::EC => "EC",
+            AlgorithmFamily::RSA => "RSA",
+            AlgorithmFamily::OKP => "OKP",
+            _ => "None",
+        }
+    }
+
+    pub fn to_string(&self) -> String {
+        String::from(self.to_str())
+    }
 }

@@ -2,6 +2,7 @@ use crate::{algorithms::Algorithm, errors::Error};
 
 pub mod ecdsa;
 pub mod eddsa;
+pub mod hmac;
 pub mod rsa;
 
 pub trait SignFromKey {

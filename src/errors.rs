@@ -25,6 +25,7 @@ impl Error {
     pub const FAILED_TO_IDENTIFY_ALGORITHM: Error = Error("Failed to identify the algorithm used");
     pub const FAILED_TO_CONVERT_TIMESTAMP_TO_DATETTIME: Error =
         Error("Failed to convert the timestamp number into a datetime instance");
+    pub const HMAC_KEY_ERROR: Error = Error("Failed to create the HMAC key");
 }
 
 impl Display for Error {
