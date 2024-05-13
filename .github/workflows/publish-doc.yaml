@@ -34,7 +34,7 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Build docs
-        uses: cargo doc
+        run: cargo doc
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
