@@ -75,6 +75,17 @@ impl P256kSigningKey {
 
         Ok(P256kSigningKey { key: ec_key })
     }
+
+    pub fn from_bytes(bytes: &[u8]) -> Result<Self, Error> {
+        let ec_key = match SigningKey::from_slice(bytes) {
+            Ok(val) => val,
+            Err(error) => {
+                log::error(error.to_string().as_str());
+                return Err(Error::PUBLIC_KEY_IDENTIFICATION_ERROR);
+            }
+        };
+        Ok(P256kSigningKey { key: ec_key })
+    }
 }
 
 pub struct P256kVerifyingKey {
@@ -126,6 +137,18 @@ impl P256kVerifyingKey {
                 }
             };
         let ec_key = match VerifyingKey::from_sec1_bytes(&key_scalar.to_sec1_bytes()) {
+            Ok(val) => val,
+            Err(error) => {
+                log::error(error.to_string().as_str());
+                return Err(Error::PUBLIC_KEY_IDENTIFICATION_ERROR);
+            }
+        };
+
+        Ok(P256kVerifyingKey { key: ec_key })
+    }
+
+    pub fn from_bytes(bytes: &[u8]) -> Result<Self, Error> {
+        let ec_key = match VerifyingKey::from_sec1_bytes(bytes) {
             Ok(val) => val,
             Err(error) => {
                 log::error(error.to_string().as_str());

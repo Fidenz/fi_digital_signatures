@@ -13,7 +13,7 @@ use p256::{
 };
 
 pub struct P256SigningKey {
-    key: SigningKey,
+    pub key: SigningKey,
 }
 
 impl SignFromKey for P256SigningKey {
@@ -75,6 +75,17 @@ impl P256SigningKey {
 
         Ok(P256SigningKey { key: ec_key })
     }
+
+    pub fn from_bytes(bytes: &[u8]) -> Result<Self, Error> {
+        let ec_key = match SigningKey::from_slice(bytes) {
+            Ok(val) => val,
+            Err(error) => {
+                log::error(error.to_string().as_str());
+                return Err(Error::PUBLIC_KEY_IDENTIFICATION_ERROR);
+            }
+        };
+        Ok(P256SigningKey { key: ec_key })
+    }
 }
 
 pub struct P256VerifyingKey {
@@ -121,7 +132,6 @@ impl P256VerifyingKey {
             match elliptic_curve::PublicKey::from_public_key_pem(key_str) {
                 Ok(val) => val,
                 Err(error) => {
-                    println!("{}", key_str);
                     log::error(error.to_string().as_str());
                     return Err(Error::EC_PEM_ERROR);
                 }
@@ -134,6 +144,18 @@ impl P256VerifyingKey {
                 return Err(Error::PUBLIC_KEY_IDENTIFICATION_ERROR);
             }
         };
+        Ok(P256VerifyingKey { key: ec_key })
+    }
+
+    pub fn from_bytes(bytes: &[u8]) -> Result<Self, Error> {
+        let ec_key = match VerifyingKey::from_sec1_bytes(bytes) {
+            Ok(val) => val,
+            Err(error) => {
+                log::error(error.to_string().as_str());
+                return Err(Error::PUBLIC_KEY_IDENTIFICATION_ERROR);
+            }
+        };
+
         Ok(P256VerifyingKey { key: ec_key })
     }
 }
