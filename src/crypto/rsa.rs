@@ -6,6 +6,7 @@ use rsa::pkcs1v15::Signature;
 use rsa::pkcs8::{DecodePrivateKey, DecodePublicKey};
 use rsa::sha2::{Sha256, Sha384, Sha512};
 use rsa::signature::{RandomizedSigner, SignatureEncoding, SignerMut, Verifier};
+use rsa::BigUint;
 
 #[derive(Debug)]
 pub struct RsaSigningKey {
@@ -29,6 +30,24 @@ impl RsaSigningKey {
                     return Err(Error::PRIVATE_KEY_IDENTIFICATION_ERROR);
                 }
             },
+        };
+
+        Ok(RsaSigningKey { key: rsa_key })
+    }
+
+    pub fn from_components(
+        n: BigUint,
+        e: BigUint,
+        d: BigUint,
+        p: BigUint,
+        q: BigUint,
+    ) -> Result<Self, Error> {
+        let rsa_key = match rsa::RsaPrivateKey::from_components(n, e, d, vec![p, q]) {
+            Ok(val) => val,
+            Err(error) => {
+                log::error(error.to_string().as_str());
+                return Err(Error::PRIVATE_KEY_IDENTIFICATION_ERROR);
+            }
         };
 
         Ok(RsaSigningKey { key: rsa_key })
