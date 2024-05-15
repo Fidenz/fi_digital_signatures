@@ -1,12 +1,10 @@
-use std::str::FromStr;
-
 use chrono::Utc;
 use did_crypto::{
     algorithms::Algorithm,
     crypto::ecdsa::_512::{P512SigningKey, P512VerifyingKey},
     jwt::{Header, Payload, JWT},
 };
-use serde_json::Value;
+use serde_json::{json, Value};
 
 const PUBLIC_KEY: &'static str = "-----BEGIN PUBLIC KEY-----
 MIGbMBAGByqGSM49AgEGBSuBBAAjA4GGAAQBgc4HZz+/fBbC7lmEww0AO3NK9wVZ
@@ -28,20 +26,15 @@ ew==
 pub fn test_jwt_validate_success() {
     let now = Utc::now().timestamp_millis() / 1000;
 
-    let payload_content: Value = Value::from_str(
-        format!(
-            "{{
-        \"sub\": \"1234567890\",
-        \"name\": \"John Doe\",
-        \"admin\": true,
-        \"iat\": 1516239022,
-        \"exp\": {}
-        }}",
-            now + 10
-        )
-        .as_str(),
-    )
-    .unwrap();
+    let payload_content: Value = json!(
+        {
+    "sub": "1234567890",
+    "name": "John Doe",
+    "admin": true,
+    "iat": 151623902,
+    "exp": now + 10
+    }
+    );
 
     let mut jwt = JWT {
         header: Header::new(String::from("id:129877"), Algorithm::ES512),
@@ -79,20 +72,15 @@ pub fn test_jwt_validate_success() {
 pub fn test_jwt_validate_expire() {
     let now = Utc::now().timestamp_millis() / 1000;
 
-    let payload_content: Value = Value::from_str(
-        format!(
-            "{{
-        \"sub\": \"1234567890\",
-        \"name\": \"John Doe\",
-        \"admin\": true,
-        \"iat\": 1516239022,
-        \"exp\": {}
-        }}",
-            now - 10
-        )
-        .as_str(),
-    )
-    .unwrap();
+    let payload_content: Value = json!(
+        {
+    "sub": "1234567890",
+    "name": "John Doe",
+    "admin": true,
+    "iat": 151623902,
+    "exp": now - 10
+    }
+    );
 
     let mut jwt = JWT {
         header: Header::new(String::from("id:129877"), Algorithm::ES512),

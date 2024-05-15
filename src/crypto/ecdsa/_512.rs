@@ -15,6 +15,7 @@ use p521::{
     NistP521,
 };
 
+/// Signing key for [`crate::algorithms::Algorithm::ES512`]
 pub struct P512SigningKey {
     key: SigningKey,
 }
@@ -36,6 +37,7 @@ impl SignFromKey for P512SigningKey {
 }
 
 impl P512SigningKey {
+    /// Create Signing key from pem formatted private key. <b>pkcs8</b> and <b>pkcs1</b>.
     pub fn from_pem(key_str: &str) -> Result<Self, Error> {
         let ec_key = match key_str.starts_with("-----BEGIN EC PRIVATE KEY-----") {
             true => {
@@ -79,6 +81,7 @@ impl P512SigningKey {
         Ok(P512SigningKey { key: ec_key })
     }
 
+    /// Create Signing key from private key bytes.
     pub fn from_bytes(bytes: &[u8]) -> Result<Self, Error> {
         let ec_key = match SigningKey::from_slice(bytes) {
             Ok(val) => val,
@@ -91,6 +94,7 @@ impl P512SigningKey {
     }
 }
 
+/// Verifying key for [`crate::algorithms::Algorithm::ES512`]
 pub struct P512VerifyingKey {
     key: VerifyingKey,
 }
@@ -130,6 +134,7 @@ impl VerifyFromKey for P512VerifyingKey {
 }
 
 impl P512VerifyingKey {
+    /// Create verifying key from pem formated key. <b>pkcs8</b> only.
     pub fn from_pem(key_str: &str) -> Result<Self, Error> {
         let key_scalar: elliptic_curve::PublicKey<NistP521> =
             match elliptic_curve::PublicKey::from_public_key_pem(key_str) {
@@ -150,6 +155,7 @@ impl P512VerifyingKey {
         Ok(P512VerifyingKey { key: ec_key })
     }
 
+    /// Create verifying key from key bytes.
     pub fn from_bytes(bytes: &[u8]) -> Result<Self, Error> {
         let ec_key = match VerifyingKey::from_sec1_bytes(bytes) {
             Ok(val) => val,
@@ -163,10 +169,12 @@ impl P512VerifyingKey {
     }
 }
 
+/// Sign content using [`crate::algorithms::Algorithm::ES512`] algorithm
 pub fn ec_512_sign(message: String, key: impl SignFromKey) -> Result<String, Error> {
     key.sign(message, Algorithm::ES512)
 }
 
+/// Verify signature using [`crate::algorithms::Algorithm::ES512`] algorithm
 pub fn ec_512_verify(message: String, sig: String, key: impl VerifyFromKey) -> Result<bool, Error> {
     key.verify(message, sig, Algorithm::ES512)
 }

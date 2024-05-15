@@ -17,12 +17,14 @@ use sha2::{
 use super::SignFromKey;
 use super::VerifyFromKey;
 
+/// Signing key for HMAC algorithm
 #[derive(Clone)]
 pub struct HMACKey {
     key: String,
 }
 
 impl HMACKey {
+    /// Create new <b>HMACKey</b> instance
     pub fn new(pass: String) -> Self {
         HMACKey { key: pass }
     }
@@ -124,10 +126,12 @@ impl VerifyFromKey for HMACKey {
     }
 }
 
+/// Sign the content with the HMAC pass phrase
 pub fn sign_hmac(message: String, key: impl SignFromKey, alg: Algorithm) -> Result<String, Error> {
     key.sign(message, alg)
 }
 
+/// Verify the signature with the HMAC pass phrase
 pub fn verify_hmac(
     message: String,
     signature: String,

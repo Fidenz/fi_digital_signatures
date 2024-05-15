@@ -49,6 +49,7 @@ where
     }
 }
 
+/// JWT token header
 #[derive(Serialize, Deserialize)]
 pub struct Header {
     pub typ: String,
@@ -57,6 +58,7 @@ pub struct Header {
 }
 
 impl Header {
+    /// Create JWT header instance
     pub fn new(kid: String, alg: Algorithm) -> Self {
         Header {
             kid,
@@ -81,6 +83,7 @@ impl ToString for Header {
 impl FromBase64Encoded for Header {}
 impl Base64Encode for Header {}
 
+/// JWT token payload. [`serde_json::Value`]
 #[derive(Serialize, Deserialize)]
 pub struct Payload(pub Value);
 
@@ -99,6 +102,7 @@ impl ToString for Payload {
 impl FromBase64Encoded for Payload {}
 impl Base64Encode for Payload {}
 
+/// JWT token signature
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Signature(String);
 
@@ -108,6 +112,7 @@ impl ToString for Signature {
     }
 }
 
+/// JWT token object
 #[derive(Serialize, Deserialize)]
 pub struct JWT {
     pub header: Header,
@@ -116,6 +121,7 @@ pub struct JWT {
 }
 
 impl JWT {
+    /// Retrive jwt token from [`JWT`] token object
     pub fn to_token(&self) -> Result<String, Error> {
         if self.signature.is_none() {
             return Err(Error::JWT_TOKEN_NOT_SIGNED);
@@ -130,6 +136,7 @@ impl JWT {
         }
     }
 
+    /// Sign the current [`JWT`] token object
     pub fn sign(&mut self, private_key: impl SignFromKey) -> Result<(), Error> {
         let content = format!(
             "{}.{}",
@@ -146,6 +153,7 @@ impl JWT {
         }
     }
 
+    /// Create [`JWT`] token instance from JWT token string
     pub fn from_token(token: &str) -> Result<Self, Error> {
         let token_content: Vec<&str> = token.split(".").collect();
 
@@ -180,6 +188,7 @@ impl JWT {
         Ok(now < exp_time)
     }
 
+    /// Verfify the [`JWT`] token and check if the token is expired
     pub fn validate(&self, public_key: impl VerifyFromKey) -> Result<bool, Error> {
         let algorithm = self.header.alg;
 
@@ -217,6 +226,8 @@ impl JWT {
         Self::check_if_expired(exp)
     }
 
+    /// Verfify the [`JWT`] token from signature and check if the token is expired. If it's
+    /// a valid jwt token string returns the JWT content.
     pub fn validate_token(
         token_str: &str,
         public_key: impl VerifyFromKey,

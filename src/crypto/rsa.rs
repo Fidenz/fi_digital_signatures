@@ -8,12 +8,15 @@ use rsa::sha2::{Sha256, Sha384, Sha512};
 use rsa::signature::{RandomizedSigner, SignatureEncoding, SignerMut, Verifier};
 use rsa::BigUint;
 
+/// Signing key for RSA based algorithms (RSA private key)
 #[derive(Debug)]
 pub struct RsaSigningKey {
     key: rsa::RsaPrivateKey,
 }
 
 impl RsaSigningKey {
+    /// Import <b>RsaSigningKey</b> from pem private key.
+    /// Both <b>pkcs8</b> and <b>pkcs1</b> works.
     pub fn from_pem(key_str: &str) -> Result<Self, Error> {
         let rsa_key = match key_str.starts_with("-----BEGIN RSA PRIVATE KEY-----") {
             true => match rsa::RsaPrivateKey::from_pkcs1_pem(key_str) {
@@ -35,6 +38,7 @@ impl RsaSigningKey {
         Ok(RsaSigningKey { key: rsa_key })
     }
 
+    // Import <b>RsaSigningKey</b> from RSA private key components
     pub fn from_components(
         n: BigUint,
         e: BigUint,
@@ -100,12 +104,15 @@ impl SignFromKey for RsaSigningKey {
     }
 }
 
+/// Verifying key for RSA based algorithms (RSA private key)
 #[derive(Debug)]
 pub struct RsaVerifyingKey {
     key: rsa::RsaPublicKey,
 }
 
 impl RsaVerifyingKey {
+    /// Import <b>RsaSigningKey</b> from pem private key.
+    /// Both <b>pkcs8</b> and <b>pkcs1</b> works.
     pub fn from_pem(key_str: &str) -> Result<Self, Error> {
         let rsa_key = match key_str.starts_with("-----BEGIN RSA PUBLIC KEY-----") {
             true => match rsa::RsaPublicKey::from_pkcs1_pem(key_str) {
@@ -216,10 +223,12 @@ impl VerifyFromKey for RsaVerifyingKey {
     }
 }
 
+/// Sign the content with the provided key and algorithm
 pub fn sign_rsa(message: String, key: impl SignFromKey, alg: Algorithm) -> Result<String, Error> {
     key.sign(message, alg)
 }
 
+/// Verify the signature with the provided key and algorithm
 pub fn verify_rsa(
     message: String,
     signature: String,

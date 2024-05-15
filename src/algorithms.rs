@@ -1,20 +1,35 @@
 use serde::{Deserialize, Serialize};
 
+/// Algorithms that used to sign and verify content
 #[derive(PartialEq, Eq, Serialize, Deserialize, Copy, Clone)]
 pub enum Algorithm {
+    /// Sha-256 hash function based HMAC hash algotithm
     HS256,
+    /// Sha-384 hash function based HMAC hash algotithm
     HS384,
+    /// Sha-256 hash function based HMAC hash algotithm
     HS512,
+    /// Sha-256 based RSA algorithm
     RS256,
+    /// Sha-384 based RSA algorithm
     RS384,
+    /// Sha-512 based RSA algorithm
     RS512,
+    /// RSASSA-PSS using SHA-256
     PS256,
+    /// RSASSA-PSS using SHA-384
     PS384,
+    /// RSASSA-PSS using SHA-512
     PS512,
+    /// Elliptic curve with NistP256
     ES256,
+    /// Elliptic curve with NistP384
     ES384,
+    /// Elliptic curve with NistP512
     ES512,
+    /// Elliptic curve with Secp256k1
     ES256K,
+    /// Elliptic curve with Ed25519
     EdDSA,
 }
 
@@ -78,10 +93,25 @@ impl Algorithm {
     }
 }
 
+/// Algorithm family of [`Algorithm`]
 pub enum AlgorithmFamily {
+    /// [`crate::algorithms::Algorithm::HS256`]
+    /// [`crate::algorithms::Algorithm::HS384`]
+    /// [`crate::algorithms::Algorithm::HS512`]
     HMAC,
+    /// [`crate::algorithms::Algorithm::ES256`]
+    /// [`crate::algorithms::Algorithm::ES384`]
+    /// [`crate::algorithms::Algorithm::ES512`]
+    /// [`crate::algorithms::Algorithm::ES256K`]
     EC,
+    /// [`crate::algorithms::Algorithm::RS256`]
+    /// [`crate::algorithms::Algorithm::RS384`]
+    /// [`crate::algorithms::Algorithm::RS512`]
+    /// [`crate::algorithms::Algorithm::PS256`]
+    /// [`crate::algorithms::Algorithm::PS384`]
+    /// [`crate::algorithms::Algorithm::PS512`]
     RSA,
+    /// [`crate::algorithms::Algorithm::EdDSA`]
     OKP,
     None,
 }

@@ -15,6 +15,7 @@ use p384::{
     NistP384,
 };
 
+/// Signing key for [`crate::algorithms::Algorithm::ES384`]
 pub struct P384SigningKey {
     key: SigningKey,
 }
@@ -36,6 +37,7 @@ impl SignFromKey for P384SigningKey {
 }
 
 impl P384SigningKey {
+    /// Create Signing key from pem formatted private key. <b>pkcs8</b> and <b>pkcs1</b>.
     pub fn from_pem(key_str: &str) -> Result<Self, Error> {
         let ec_key = match key_str.starts_with("-----BEGIN EC PRIVATE KEY-----") {
             true => {
@@ -79,6 +81,7 @@ impl P384SigningKey {
         Ok(P384SigningKey { key: ec_key })
     }
 
+    /// Create Signing key from private key bytes.
     pub fn from_bytes(bytes: &[u8]) -> Result<Self, Error> {
         let ec_key = match SigningKey::from_slice(bytes) {
             Ok(val) => val,
@@ -91,6 +94,7 @@ impl P384SigningKey {
     }
 }
 
+/// Verifying key for [`crate::algorithms::Algorithm::ES384`]
 pub struct P384VerifyingKey {
     key: VerifyingKey,
 }
@@ -130,6 +134,7 @@ impl VerifyFromKey for P384VerifyingKey {
 }
 
 impl P384VerifyingKey {
+    /// Create verifying key from pem formated key. <b>pkcs8</b> only.
     pub fn from_pem(key_str: &str) -> Result<Self, Error> {
         let key_scalar: elliptic_curve::PublicKey<NistP384> =
             match elliptic_curve::PublicKey::from_public_key_pem(key_str) {
@@ -150,6 +155,7 @@ impl P384VerifyingKey {
         Ok(P384VerifyingKey { key: ec_key })
     }
 
+    /// Create verifying key from key bytes.
     pub fn from_bytes(bytes: &[u8]) -> Result<Self, Error> {
         let ec_key = match VerifyingKey::from_sec1_bytes(bytes) {
             Ok(val) => val,
@@ -163,10 +169,12 @@ impl P384VerifyingKey {
     }
 }
 
+/// Sign content using [`crate::algorithms::Algorithm::ES384`] algorithm
 pub fn ec_384_sign(message: String, key: impl SignFromKey) -> Result<String, Error> {
     key.sign(message, Algorithm::ES384)
 }
 
+/// Verify signature using [`crate::algorithms::Algorithm::ES384`] algorithm
 pub fn ec_384_verify(message: String, sig: String, key: impl VerifyFromKey) -> Result<bool, Error> {
     key.verify(message, sig, Algorithm::ES384)
 }

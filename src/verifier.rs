@@ -6,6 +6,7 @@ use crate::{
     errors::Error,
 };
 
+/// Verify the signature with a provided Key
 pub fn verify(
     message: String,
     signature: String,

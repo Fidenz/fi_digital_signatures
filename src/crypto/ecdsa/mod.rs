@@ -11,11 +11,16 @@ use self::{
     _512::{ec_512_sign, ec_512_verify},
 };
 
+/// EC signing & verifying with NistP256 curve
 pub mod _256;
+/// EC signing & verifying with Secp256k1 curve
 pub mod _256k;
+/// EC signing & verifying with NistP384 curve
 pub mod _384;
+/// EC signing & verifying with NistP521 curve
 pub mod _512;
 
+/// Sign content with EC based algorithms
 pub fn sign_ec(message: String, key: impl SignFromKey, alg: Algorithm) -> Result<String, Error> {
     match alg {
         Algorithm::ES256 => ec_256_sign(message, key),
@@ -26,6 +31,7 @@ pub fn sign_ec(message: String, key: impl SignFromKey, alg: Algorithm) -> Result
     }
 }
 
+/// Verify signature with EC based algorithms
 pub fn verify_ec(
     message: String,
     signature: String,

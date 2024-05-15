@@ -4,6 +4,7 @@ use crate::{
     errors::Error,
 };
 
+/// Signs the content with a provided Key
 pub fn sign(message: String, key: impl SignFromKey, alg: Algorithm) -> Result<String, Error> {
     let alg_family = alg.get_family();
     match alg_family {

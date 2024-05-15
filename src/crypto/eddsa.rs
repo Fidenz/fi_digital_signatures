@@ -9,6 +9,7 @@ use crate::log;
 
 use super::{SignFromKey, VerifyFromKey};
 
+/// Signing key for ED25519 algorithm [`crate::algorithms::Algorithm::EdDSA`]
 pub struct EDDSASigningKey {
     key: SigningKey,
 }
@@ -30,6 +31,7 @@ impl SignFromKey for EDDSASigningKey {
 }
 
 impl EDDSASigningKey {
+    /// Create signing key from pem formatted private key. <b>pksc8</b> only.
     pub fn from_pem(key_str: &str) -> Result<Self, Error> {
         let pkc8_key = match SigningKey::from_pkcs8_pem(key_str) {
             Ok(val) => val,
@@ -42,6 +44,7 @@ impl EDDSASigningKey {
         Ok(EDDSASigningKey { key: pkc8_key })
     }
 
+    /// Create signing key from private key bytes.
     pub fn from_bytes(bytes: &mut [u8]) -> Result<Self, Error> {
         if bytes.len() != 32 {
             return Err(Error::PRIVATE_KEY_IDENTIFICATION_ERROR);
@@ -54,6 +57,7 @@ impl EDDSASigningKey {
     }
 }
 
+/// Verifying key for ED25519 algorithm
 pub struct EDDSAVerifyingKey {
     key: VerifyingKey,
 }
@@ -93,6 +97,7 @@ impl VerifyFromKey for EDDSAVerifyingKey {
 }
 
 impl EDDSAVerifyingKey {
+    /// Create verifying key from pem formatted public key. <b>pksc8</b> only.
     pub fn from_pem(key_str: &str) -> Result<Self, Error> {
         let pkc8_key = match VerifyingKey::from_public_key_pem(key_str) {
             Ok(val) => val,
@@ -105,6 +110,7 @@ impl EDDSAVerifyingKey {
         Ok(EDDSAVerifyingKey { key: pkc8_key })
     }
 
+    /// Create verifying key from public key bytes. <b>pksc8</b> only.
     pub fn from_bytes(bytes: &mut [u8]) -> Result<Self, Error> {
         if bytes.len() != 32 {
             return Err(Error::PUBLIC_KEY_IDENTIFICATION_ERROR);

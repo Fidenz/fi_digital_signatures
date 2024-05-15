@@ -12,6 +12,7 @@ use k256::{
     Secp256k1,
 };
 
+/// Signing key for [`crate::algorithms::Algorithm::ES256K`]
 pub struct P256kSigningKey {
     key: SigningKey,
 }
@@ -33,6 +34,7 @@ impl SignFromKey for P256kSigningKey {
 }
 
 impl P256kSigningKey {
+    /// Create Signing key from pem formatted private key. <b>pkcs8</b> and <b>pkcs1</b>.
     pub fn from_pem(key_str: &str) -> Result<Self, Error> {
         let ec_key = match key_str.starts_with("-----BEGIN EC PRIVATE KEY-----") {
             true => {
@@ -76,6 +78,7 @@ impl P256kSigningKey {
         Ok(P256kSigningKey { key: ec_key })
     }
 
+    /// Create Signing key from private key bytes.
     pub fn from_bytes(bytes: &[u8]) -> Result<Self, Error> {
         let ec_key = match SigningKey::from_slice(bytes) {
             Ok(val) => val,
@@ -88,6 +91,7 @@ impl P256kSigningKey {
     }
 }
 
+/// Verifying key for [`crate::algorithms::Algorithm::ES256K`]
 pub struct P256kVerifyingKey {
     key: VerifyingKey,
 }
@@ -127,6 +131,7 @@ impl VerifyFromKey for P256kVerifyingKey {
 }
 
 impl P256kVerifyingKey {
+    /// Create verifying key from pem formated key. <b>pkcs8</b> only.
     pub fn from_pem(key_str: &str) -> Result<Self, Error> {
         let key_scalar: elliptic_curve::PublicKey<Secp256k1> =
             match elliptic_curve::PublicKey::from_public_key_pem(key_str) {
@@ -147,6 +152,7 @@ impl P256kVerifyingKey {
         Ok(P256kVerifyingKey { key: ec_key })
     }
 
+    /// Create verifying key from key bytes.
     pub fn from_bytes(bytes: &[u8]) -> Result<Self, Error> {
         let ec_key = match VerifyingKey::from_sec1_bytes(bytes) {
             Ok(val) => val,
@@ -160,10 +166,12 @@ impl P256kVerifyingKey {
     }
 }
 
+/// Sign content using [`crate::algorithms::Algorithm::ES256K`] algorithm
 pub fn ec_256k_sign(message: String, key: impl SignFromKey) -> Result<String, Error> {
     key.sign(message, Algorithm::ES256K)
 }
 
+/// Verify signature using [`crate::algorithms::Algorithm::ES256K`] algorithm
 pub fn ec_256k_verify(
     message: String,
     sig: String,
