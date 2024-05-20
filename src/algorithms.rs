@@ -1,7 +1,9 @@
 use serde::{Deserialize, Serialize};
+use wasm_bindgen::prelude::wasm_bindgen;
 
 /// Algorithms that used to sign and verify content
 #[derive(PartialEq, Eq, Serialize, Deserialize, Copy, Clone)]
+#[wasm_bindgen]
 pub enum Algorithm {
     /// Sha-256 hash function based HMAC hash algotithm
     HS256,
@@ -94,6 +96,7 @@ impl Algorithm {
 }
 
 /// Algorithm family of [`Algorithm`]
+#[wasm_bindgen]
 pub enum AlgorithmFamily {
     /// [`crate::algorithms::Algorithm::HS256`]
     /// [`crate::algorithms::Algorithm::HS384`]

@@ -22,6 +22,7 @@ jMiZNE25pT2yWP1NUndJxPcvVtfBW48kPOmvkY4WlqP5bAwCXwbsKrCgk6xbsp12
 ew==
 -----END PRIVATE KEY-----";
 
+#[cfg(not(feature = "wasm"))]
 #[test]
 pub fn test_jwt_validate_success() {
     let now = Utc::now().timestamp_millis() / 1000;
@@ -36,11 +37,11 @@ pub fn test_jwt_validate_success() {
     }
     );
 
-    let mut jwt = JWT {
-        header: Header::new(String::from("id:129877"), Algorithm::ES512),
-        payload: Payload(payload_content),
-        signature: None,
-    };
+    let mut jwt = JWT::new(
+        Header::new(String::from("id:129877"), Algorithm::ES512),
+        Payload(payload_content),
+        None,
+    );
 
     match jwt.sign(P512SigningKey::from_pem(PRIVATE_KEY).unwrap()) {
         Ok(()) => {}
@@ -82,11 +83,11 @@ pub fn test_jwt_validate_expire() {
     }
     );
 
-    let mut jwt = JWT {
-        header: Header::new(String::from("id:129877"), Algorithm::ES512),
-        payload: Payload(payload_content),
-        signature: None,
-    };
+    let mut jwt = JWT::new(
+        Header::new(String::from("id:129877"), Algorithm::ES512),
+        Payload(payload_content),
+        None,
+    );
 
     match jwt.sign(P512SigningKey::from_pem(PRIVATE_KEY).unwrap()) {
         Ok(()) => {}

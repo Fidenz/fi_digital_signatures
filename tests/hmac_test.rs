@@ -6,6 +6,7 @@ const HMAC256_CONTENT: &'static str=  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJz
 const HMAC384_CONTENT: &'static str=  "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ";
 const HMAC512_CONTENT: &'static str=  "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ";
 
+#[cfg(not(feature = "wasm"))]
 #[test]
 pub fn hmac256_signing_and_verifying() {
     let key = HMACKey::new(String::from(PASS_KEY));
@@ -18,6 +19,7 @@ pub fn hmac256_signing_and_verifying() {
     assert!(verify(String::from(HMAC256_CONTENT), sig, key, Algorithm::HS256).unwrap());
 }
 
+#[cfg(not(feature = "wasm"))]
 #[test]
 pub fn hmac384_signing_and_verifying() {
     let key = HMACKey::new(String::from(PASS_KEY));
@@ -30,6 +32,7 @@ pub fn hmac384_signing_and_verifying() {
     assert!(verify(String::from(HMAC384_CONTENT), sig, key, Algorithm::HS384).unwrap());
 }
 
+#[cfg(not(feature = "wasm"))]
 #[test]
 pub fn hmac512_signing_and_verifying() {
     let key = HMACKey::new(String::from(PASS_KEY));

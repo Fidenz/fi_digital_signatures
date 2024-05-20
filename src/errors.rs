@@ -1,7 +1,15 @@
 use std::fmt::Display;
 
+use wasm_bindgen::prelude::wasm_bindgen;
+
 /// Object for error handling
 #[derive(Debug)]
+#[cfg(not(feature = "wasm"))]
+#[wasm_bindgen]
+pub struct Error(&'static str);
+
+#[cfg(feature = "wasm")]
+#[wasm_bindgen]
 pub struct Error(&'static str);
 
 impl Error {
@@ -64,6 +72,17 @@ impl Error {
 
     /// Failed to create HMAC key
     pub const HMAC_KEY_ERROR: Error = Error("Failed to create the HMAC key");
+
+    /// Invalid signing key instance
+    pub const NOT_A_SIGNING_KEY_INSTANCE: Error =
+        Error("Provided value is not a signing key instace");
+
+    /// Invalid verifying key instance
+    pub const NOT_A_VERIFYING_KEY_INSTANCE: Error =
+        Error("Provided value is not a verifying key instace");
+
+    /// Missing field in Js object
+    pub const MISSING_FIELD: Error = Error("Provided JS object is missing some required fields");
 }
 
 impl Display for Error {

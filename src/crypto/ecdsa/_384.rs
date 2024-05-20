@@ -7,6 +7,8 @@ use crate::{
     log,
 };
 use elliptic_curve::pkcs8::DecodePublicKey;
+#[cfg(feature = "wasm")]
+use js_sys::{Object, Uint8Array};
 use p384::{
     ecdsa::{
         signature::{Signer, Verifier},
@@ -14,16 +16,34 @@ use p384::{
     },
     NistP384,
 };
+use wasm_bindgen::prelude::wasm_bindgen;
+#[cfg(feature = "wasm")]
+use wasm_bindgen::JsValue;
 
 /// Signing key for [`crate::algorithms::Algorithm::ES384`]
+#[wasm_bindgen]
 pub struct P384SigningKey {
+    #[cfg(not(feature = "wasm"))]
     key: SigningKey,
+
+    #[cfg(feature = "wasm")]
+    key_str: Option<String>,
+    #[cfg(feature = "wasm")]
+    key_bytes: Option<Vec<u8>>,
 }
 
 impl SignFromKey for P384SigningKey {
     fn sign(&self, content: String, _alg: Algorithm) -> Result<String, Error> {
-        let sig_result: Result<Signature, p384::ecdsa::Error> =
-            self.key.try_sign(content.as_bytes());
+        #[cfg(not(feature = "wasm"))]
+        let key = &self.key;
+
+        #[cfg(feature = "wasm")]
+        let key = match self.get_key() {
+            Ok(val) => val,
+            Err(error) => return Err(error),
+        };
+
+        let sig_result: Result<Signature, p384::ecdsa::Error> = key.try_sign(content.as_bytes());
         let signature = match sig_result {
             Ok(val) => val,
             Err(error) => {
@@ -36,67 +56,153 @@ impl SignFromKey for P384SigningKey {
     }
 }
 
+fn get_private_key_from_pem(key_str: &str) -> Result<SigningKey, Error> {
+    match key_str.starts_with("-----BEGIN EC PRIVATE KEY-----") {
+        true => {
+            let key_scalar: elliptic_curve::SecretKey<NistP384> =
+                match elliptic_curve::SecretKey::from_sec1_pem(key_str) {
+                    Ok(val) => val,
+                    Err(error) => {
+                        log::error(error.to_string().as_str());
+                        return Err(Error::EC_PEM_ERROR);
+                    }
+                };
+
+            match SigningKey::from_bytes(&key_scalar.as_scalar_primitive().to_bytes()) {
+                Ok(val) => Ok(val),
+                Err(error) => {
+                    log::error(error.to_string().as_str());
+                    return Err(Error::PRIVATE_KEY_IDENTIFICATION_ERROR);
+                }
+            }
+        }
+        false => {
+            let key_scalar: elliptic_curve::SecretKey<NistP384> =
+                match elliptic_curve::SecretKey::from_str(key_str) {
+                    Ok(val) => val,
+                    Err(error) => {
+                        log::error(error.to_string().as_str());
+                        return Err(Error::EC_PEM_ERROR);
+                    }
+                };
+
+            match SigningKey::from_bytes(&key_scalar.as_scalar_primitive().to_bytes()) {
+                Ok(val) => Ok(val),
+                Err(error) => {
+                    log::error(error.to_string().as_str());
+                    return Err(Error::PRIVATE_KEY_IDENTIFICATION_ERROR);
+                }
+            }
+        }
+    }
+}
+
+fn get_private_key_from_bytes(bytes: &[u8]) -> Result<SigningKey, Error> {
+    match SigningKey::from_slice(bytes) {
+        Ok(val) => Ok(val),
+        Err(error) => {
+            log::error(error.to_string().as_str());
+            return Err(Error::PUBLIC_KEY_IDENTIFICATION_ERROR);
+        }
+    }
+}
+
+#[cfg(not(feature = "wasm"))]
 impl P384SigningKey {
     /// Create Signing key from pem formatted private key. <b>pkcs8</b> and <b>pkcs1</b>.
-    pub fn from_pem(key_str: &str) -> Result<Self, Error> {
-        let ec_key = match key_str.starts_with("-----BEGIN EC PRIVATE KEY-----") {
-            true => {
-                let key_scalar: elliptic_curve::SecretKey<NistP384> =
-                    match elliptic_curve::SecretKey::from_sec1_pem(key_str) {
-                        Ok(val) => val,
-                        Err(error) => {
-                            log::error(error.to_string().as_str());
-                            return Err(Error::EC_PEM_ERROR);
-                        }
-                    };
-
-                match SigningKey::from_bytes(&key_scalar.as_scalar_primitive().to_bytes()) {
-                    Ok(val) => val,
-                    Err(error) => {
-                        log::error(error.to_string().as_str());
-                        return Err(Error::PRIVATE_KEY_IDENTIFICATION_ERROR);
-                    }
-                }
-            }
-            false => {
-                let key_scalar: elliptic_curve::SecretKey<NistP384> =
-                    match elliptic_curve::SecretKey::from_str(key_str) {
-                        Ok(val) => val,
-                        Err(error) => {
-                            log::error(error.to_string().as_str());
-                            return Err(Error::EC_PEM_ERROR);
-                        }
-                    };
-
-                match SigningKey::from_bytes(&key_scalar.as_scalar_primitive().to_bytes()) {
-                    Ok(val) => val,
-                    Err(error) => {
-                        log::error(error.to_string().as_str());
-                        return Err(Error::PRIVATE_KEY_IDENTIFICATION_ERROR);
-                    }
-                }
-            }
+    pub fn from_pem(key_str: &str) -> Result<P384SigningKey, Error> {
+        let ec_key = match get_private_key_from_pem(key_str) {
+            Ok(val) => val,
+            Err(error) => return Err(error),
         };
 
         Ok(P384SigningKey { key: ec_key })
     }
 
     /// Create Signing key from private key bytes.
-    pub fn from_bytes(bytes: &[u8]) -> Result<Self, Error> {
-        let ec_key = match SigningKey::from_slice(bytes) {
+    pub fn from_bytes(bytes: &[u8]) -> Result<P384SigningKey, Error> {
+        let ec_key = match get_private_key_from_bytes(bytes) {
             Ok(val) => val,
-            Err(error) => {
-                log::error(error.to_string().as_str());
-                return Err(Error::PUBLIC_KEY_IDENTIFICATION_ERROR);
-            }
+            Err(error) => return Err(error),
         };
         Ok(P384SigningKey { key: ec_key })
     }
 }
 
+#[cfg(feature = "wasm")]
+#[wasm_bindgen]
+impl P384SigningKey {
+    /// Create Signing key from pem formatted private key. <b>pkcs8</b> and <b>pkcs1</b>.
+    #[wasm_bindgen(js_name = "fromPem")]
+    pub fn from_pem(key_str: &str) -> P384SigningKey {
+        P384SigningKey {
+            key_str: Some(String::from(key_str)),
+            key_bytes: None,
+        }
+    }
+
+    /// Create Signing key from private key bytes.
+    #[wasm_bindgen(js_name = "fromBytes")]
+    pub fn from_bytes(bytes: &[u8]) -> P384SigningKey {
+        P384SigningKey {
+            key_str: None,
+            key_bytes: Some(bytes.to_vec()),
+        }
+    }
+
+    fn get_key(&self) -> Result<SigningKey, Error> {
+        let key_bytes = self.key_bytes.clone();
+        let key_str = self.key_str.clone();
+
+        if key_str.is_some() {
+            get_private_key_from_pem(key_str.unwrap().as_str())
+        } else if key_bytes.is_some() {
+            get_private_key_from_bytes(key_bytes.unwrap().as_mut_slice())
+        } else {
+            Err(Error::PRIVATE_KEY_IDENTIFICATION_ERROR)
+        }
+    }
+
+    pub fn from_js_object(value: Object) -> Result<P384SigningKey, Error> {
+        let pem_field = JsValue::from_str("pem");
+
+        if value.has_own_property(&pem_field) {
+            let pem = match js_sys::Reflect::get(&value, &pem_field) {
+                Ok(val) => {
+                    let string_value = match val.as_string() {
+                        Some(v) => v,
+                        None => return Err(Error::MISSING_FIELD),
+                    };
+                    string_value
+                }
+                Err(error) => {
+                    log::error(error.as_string().unwrap().as_str());
+                    return Err(Error::MISSING_FIELD);
+                }
+            };
+
+            return Ok(P384SigningKey::from_pem(pem.as_str()));
+        } else if value.is_array() {
+            let arr = Uint8Array::new(&value).to_vec();
+            let bytes = arr.as_slice();
+
+            return Ok(P384SigningKey::from_bytes(bytes));
+        } else {
+            Err(Error::MISSING_FIELD)
+        }
+    }
+}
+
 /// Verifying key for [`crate::algorithms::Algorithm::ES384`]
+#[wasm_bindgen]
 pub struct P384VerifyingKey {
+    #[cfg(not(feature = "wasm"))]
     key: VerifyingKey,
+
+    #[cfg(feature = "wasm")]
+    key_str: Option<String>,
+    #[cfg(feature = "wasm")]
+    key_bytes: Option<Vec<u8>>,
 }
 
 impl VerifyFromKey for P384VerifyingKey {
@@ -117,8 +223,15 @@ impl VerifyFromKey for P384VerifyingKey {
             }
         };
 
-        let verify_result: Result<(), p384::ecdsa::Error> =
-            self.key.verify(content.as_bytes(), &sig);
+        #[cfg(not(feature = "wasm"))]
+        let key = &self.key;
+        #[cfg(feature = "wasm")]
+        let key = match self.get_key() {
+            Ok(val) => val,
+            Err(error) => return Err(error),
+        };
+
+        let verify_result: Result<(), p384::ecdsa::Error> = key.verify(content.as_bytes(), &sig);
         if verify_result.is_ok() {
             return Ok(true);
         } else {
@@ -133,39 +246,117 @@ impl VerifyFromKey for P384VerifyingKey {
     }
 }
 
-impl P384VerifyingKey {
-    /// Create verifying key from pem formated key. <b>pkcs8</b> only.
-    pub fn from_pem(key_str: &str) -> Result<Self, Error> {
-        let key_scalar: elliptic_curve::PublicKey<NistP384> =
-            match elliptic_curve::PublicKey::from_public_key_pem(key_str) {
-                Ok(val) => val,
-                Err(error) => {
-                    log::error(error.to_string().as_str());
-                    return Err(Error::EC_PEM_ERROR);
-                }
-            };
-        let ec_key = match VerifyingKey::from_sec1_bytes(&key_scalar.to_sec1_bytes()) {
+fn get_public_key_from_pem(key_str: &str) -> Result<VerifyingKey, Error> {
+    let key_scalar: elliptic_curve::PublicKey<NistP384> =
+        match elliptic_curve::PublicKey::from_public_key_pem(key_str) {
             Ok(val) => val,
             Err(error) => {
                 log::error(error.to_string().as_str());
-                return Err(Error::PUBLIC_KEY_IDENTIFICATION_ERROR);
+                return Err(Error::EC_PEM_ERROR);
             }
+        };
+    match VerifyingKey::from_sec1_bytes(&key_scalar.to_sec1_bytes()) {
+        Ok(val) => Ok(val),
+        Err(error) => {
+            log::error(error.to_string().as_str());
+            return Err(Error::PUBLIC_KEY_IDENTIFICATION_ERROR);
+        }
+    }
+}
+
+fn get_public_key_from_bytes(bytes: &[u8]) -> Result<VerifyingKey, Error> {
+    match VerifyingKey::from_sec1_bytes(bytes) {
+        Ok(val) => Ok(val),
+        Err(error) => {
+            log::error(error.to_string().as_str());
+            return Err(Error::PUBLIC_KEY_IDENTIFICATION_ERROR);
+        }
+    }
+}
+
+#[cfg(not(feature = "wasm"))]
+impl P384VerifyingKey {
+    /// Create verifying key from pem formated key. <b>pkcs8</b> only.
+    pub fn from_pem(key_str: &str) -> Result<P384VerifyingKey, Error> {
+        let ec_key = match get_public_key_from_pem(key_str) {
+            Ok(val) => val,
+            Err(error) => return Err(error),
         };
 
         Ok(P384VerifyingKey { key: ec_key })
     }
 
     /// Create verifying key from key bytes.
-    pub fn from_bytes(bytes: &[u8]) -> Result<Self, Error> {
-        let ec_key = match VerifyingKey::from_sec1_bytes(bytes) {
+    pub fn from_bytes(bytes: &[u8]) -> Result<P384VerifyingKey, Error> {
+        let ec_key = match get_public_key_from_bytes(bytes) {
             Ok(val) => val,
-            Err(error) => {
-                log::error(error.to_string().as_str());
-                return Err(Error::PUBLIC_KEY_IDENTIFICATION_ERROR);
-            }
+            Err(error) => return Err(error),
         };
 
         Ok(P384VerifyingKey { key: ec_key })
+    }
+}
+
+#[cfg(feature = "wasm")]
+#[wasm_bindgen]
+impl P384VerifyingKey {
+    /// Create verifying key from pem formated key. <b>pkcs8</b> only.
+    #[wasm_bindgen(js_name = "fromPem")]
+    pub fn from_pem(key_str: &str) -> P384VerifyingKey {
+        P384VerifyingKey {
+            key_str: Some(String::from(key_str)),
+            key_bytes: None,
+        }
+    }
+
+    /// Create verifying key from key bytes.
+    #[wasm_bindgen(js_name = "fromBytes")]
+    pub fn from_bytes(bytes: &[u8]) -> P384VerifyingKey {
+        P384VerifyingKey {
+            key_str: None,
+            key_bytes: Some(bytes.to_vec()),
+        }
+    }
+
+    fn get_key(&self) -> Result<VerifyingKey, Error> {
+        let key_bytes = self.key_bytes.clone();
+        let key_str = self.key_str.clone();
+
+        if key_str.is_some() {
+            get_public_key_from_pem(key_str.unwrap().as_str())
+        } else if key_bytes.is_some() {
+            get_public_key_from_bytes(key_bytes.unwrap().as_mut_slice())
+        } else {
+            Err(Error::PUBLIC_KEY_IDENTIFICATION_ERROR)
+        }
+    }
+
+    pub fn from_js_object(value: Object) -> Result<P384VerifyingKey, Error> {
+        let pem_field = JsValue::from_str("pem");
+        if value.has_own_property(&pem_field) {
+            let pem = match js_sys::Reflect::get(&value, &pem_field) {
+                Ok(val) => {
+                    let string_value = match val.as_string() {
+                        Some(v) => v,
+                        None => return Err(Error::MISSING_FIELD),
+                    };
+                    string_value
+                }
+                Err(error) => {
+                    log::error(error.as_string().unwrap().as_str());
+                    return Err(Error::MISSING_FIELD);
+                }
+            };
+
+            return Ok(P384VerifyingKey::from_pem(pem.as_str()));
+        } else if value.is_array() {
+            let arr = Uint8Array::new(&value).to_vec();
+            let bytes = arr.as_slice();
+
+            return Ok(P384VerifyingKey::from_bytes(bytes));
+        } else {
+            Err(Error::MISSING_FIELD)
+        }
     }
 }
 

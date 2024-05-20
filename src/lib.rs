@@ -6,10 +6,10 @@ pub mod algorithms;
 /// Signing and verifying for each algorithm
 pub mod crypto;
 /// Constant error values
-mod errors;
+pub mod errors;
 /// JWT token management
 pub mod jwt;
-mod log;
+pub mod log;
 /// Content signer
 pub mod signer;
 /// Signature verifier
