@@ -39,37 +39,37 @@ pub fn sign_ec(message: String, key: impl SignFromKey, alg: Algorithm) -> Result
 }
 
 #[cfg(feature = "wasm")]
-pub fn sign_ec(message: String, key: Object, alg: Algorithm) -> Result<String, Error> {
+pub fn sign_ec(message: String, key: Object, alg: Algorithm) -> Result<String, String> {
     match alg {
         Algorithm::ES256 => ec_256_sign(
             message,
             match P256SigningKey::from_js_object(key) {
                 Ok(val) => val,
-                Err(error) => return Err(error),
+                Err(error) => return Err(error.to_string()),
             },
         ),
         Algorithm::ES384 => ec_384_sign(
             message,
-            match P256kSigningKey::from_js_object(key) {
+            match P384SigningKey::from_js_object(key) {
                 Ok(val) => val,
-                Err(error) => return Err(error),
+                Err(error) => return Err(error.to_string()),
             },
         ),
         Algorithm::ES512 => ec_512_sign(
             message,
-            match P384SigningKey::from_js_object(key) {
+            match P512SigningKey::from_js_object(key) {
                 Ok(val) => val,
-                Err(error) => return Err(error),
+                Err(error) => return Err(error.to_string()),
             },
         ),
         Algorithm::ES256K => ec_256k_sign(
             message,
-            match P512SigningKey::from_js_object(key) {
+            match P256kSigningKey::from_js_object(key) {
                 Ok(val) => val,
-                Err(error) => return Err(error),
+                Err(error) => return Err(error.to_string()),
             },
         ),
-        _ => return Err(Error::UNKNOWN_ALGORITHM),
+        _ => return Err(Error::UNKNOWN_ALGORITHM.to_string()),
     }
 }
 
@@ -96,40 +96,40 @@ pub fn verify_ec(
     signature: String,
     key: Object,
     alg: Algorithm,
-) -> Result<bool, Error> {
+) -> Result<bool, String> {
     match alg {
         Algorithm::ES256 => ec_256_verify(
             message,
             signature,
             match P256VerifyingKey::from_js_object(key) {
                 Ok(val) => val,
-                Err(error) => return Err(error),
+                Err(error) => return Err(error.to_string()),
             },
         ),
         Algorithm::ES384 => ec_384_verify(
             message,
             signature,
-            match P256VerifyingKey::from_js_object(key) {
+            match P384VerifyingKey::from_js_object(key) {
                 Ok(val) => val,
-                Err(error) => return Err(error),
+                Err(error) => return Err(error.to_string()),
             },
         ),
         Algorithm::ES512 => ec_512_verify(
             message,
             signature,
-            match P384VerifyingKey::from_js_object(key) {
+            match P512VerifyingKey::from_js_object(key) {
                 Ok(val) => val,
-                Err(error) => return Err(error),
+                Err(error) => return Err(error.to_string()),
             },
         ),
         Algorithm::ES256K => ec_256k_verify(
             message,
             signature,
-            match P512VerifyingKey::from_js_object(key) {
+            match P256VerifyingKey::from_js_object(key) {
                 Ok(val) => val,
-                Err(error) => return Err(error),
+                Err(error) => return Err(error.to_string()),
             },
         ),
-        _ => return Err(Error::UNKNOWN_ALGORITHM),
+        _ => return Err(Error::UNKNOWN_ALGORITHM.to_string()),
     }
 }

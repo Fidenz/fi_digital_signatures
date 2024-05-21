@@ -28,14 +28,14 @@ pub fn sign(message: String, key: impl SignFromKey, alg: Algorithm) -> Result<St
 
 #[cfg(feature = "wasm")]
 #[wasm_bindgen]
-pub fn sign(message: String, key: Object, alg: Algorithm) -> Result<String, Error> {
+pub fn sign(message: String, key: Object, alg: Algorithm) -> Result<String, String> {
     let alg_family = alg.get_family();
     match alg_family {
         AlgorithmFamily::HMAC => sign_hmac(
             message,
             match HMACKey::from_js_object(key) {
                 Ok(val) => val,
-                Err(error) => return Err(error),
+                Err(error) => return Err(error.to_string()),
             },
             alg,
         ),
@@ -43,7 +43,7 @@ pub fn sign(message: String, key: Object, alg: Algorithm) -> Result<String, Erro
             message,
             match RsaSigningKey::from_js_object(key) {
                 Ok(val) => val,
-                Err(error) => return Err(error),
+                Err(error) => return Err(error.to_string()),
             },
             alg,
         ),
@@ -52,10 +52,10 @@ pub fn sign(message: String, key: Object, alg: Algorithm) -> Result<String, Erro
             message,
             match EDDSASigningKey::from_js_object(key) {
                 Ok(val) => val,
-                Err(error) => return Err(error),
+                Err(error) => return Err(error.to_string()),
             },
             alg,
         ),
-        _ => return Err(Error::UNKNOWN_ALGORITHM),
+        _ => return Err(Error::UNKNOWN_ALGORITHM.to_string()),
     }
 }

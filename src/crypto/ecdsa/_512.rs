@@ -362,11 +362,33 @@ impl P512VerifyingKey {
 }
 
 /// Sign content using [`crate::algorithms::Algorithm::ES512`] algorithm
+#[cfg(not(feature = "wasm"))]
 pub fn ec_512_sign(message: String, key: impl SignFromKey) -> Result<String, Error> {
     key.sign(message, Algorithm::ES512)
 }
 
+#[cfg(feature = "wasm")]
+pub fn ec_512_sign(message: String, key: impl SignFromKey) -> Result<String, String> {
+    match key.sign(message, Algorithm::ES512) {
+        Ok(val) => Ok(val),
+        Err(error) => Err(error.to_string()),
+    }
+}
+
 /// Verify signature using [`crate::algorithms::Algorithm::ES512`] algorithm
+#[cfg(not(feature = "wasm"))]
 pub fn ec_512_verify(message: String, sig: String, key: impl VerifyFromKey) -> Result<bool, Error> {
     key.verify(message, sig, Algorithm::ES512)
+}
+
+#[cfg(feature = "wasm")]
+pub fn ec_512_verify(
+    message: String,
+    sig: String,
+    key: impl VerifyFromKey,
+) -> Result<bool, String> {
+    match key.verify(message, sig, Algorithm::ES512) {
+        Ok(val) => Ok(val),
+        Err(error) => Err(error.to_string()),
+    }
 }

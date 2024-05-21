@@ -391,35 +391,34 @@ impl JWT {
 
     /// Sign the current [`JWT`] token object
     #[wasm_bindgen]
-    pub fn sign(&mut self, private_key: js_sys::Object) -> Result<(), Error> {
+    pub fn sign(&mut self, private_key: js_sys::Object) -> Result<(), String> {
         let content = format!(
             "{}.{}",
             self.header.to_base64_encoded(),
             self.payload.to_base64_encoded()
         );
-
         match sign(content.clone(), private_key, self.header.alg) {
             Ok(val) => {
                 self.signature = Some(Signature(val));
                 Ok(())
             }
-            Err(error) => Err(error),
+            Err(error) => Err(error.to_string()),
         }
     }
 
     /// Create [`JWT`] token instance from JWT token string
     #[wasm_bindgen]
-    pub fn from_token(token: &str) -> Result<JWT, Error> {
+    pub fn from_token(token: &str) -> Result<JWT, String> {
         let token_content: Vec<&str> = token.split(".").collect();
 
         let header = match Header::from_base64_encoded(token_content[0]) {
             Ok(val) => val,
-            Err(error) => return Err(error),
+            Err(error) => return Err(error.to_string()),
         };
 
         let payload = match Payload::from_base64_encoded(token_content[1]) {
             Ok(val) => val,
-            Err(error) => return Err(error),
+            Err(error) => return Err(error.to_string()),
         };
 
         let signature: Signature = Signature(String::from(token_content[2]));

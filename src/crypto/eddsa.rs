@@ -325,10 +325,24 @@ impl EDDSAVerifyingKey {
     }
 }
 
+#[cfg(not(feature = "wasm"))]
 pub fn sign_eddsa(message: String, key: impl SignFromKey, alg: Algorithm) -> Result<String, Error> {
     key.sign(message, alg)
 }
 
+#[cfg(feature = "wasm")]
+pub fn sign_eddsa(
+    message: String,
+    key: impl SignFromKey,
+    alg: Algorithm,
+) -> Result<String, String> {
+    match key.sign(message, alg) {
+        Ok(val) => Ok(val),
+        Err(error) => Err(error.to_string()),
+    }
+}
+
+#[cfg(not(feature = "wasm"))]
 pub fn verify_eddsa(
     message: String,
     sig: String,
@@ -336,4 +350,17 @@ pub fn verify_eddsa(
     alg: Algorithm,
 ) -> Result<bool, Error> {
     key.verify(message, sig, alg)
+}
+
+#[cfg(feature = "wasm")]
+pub fn verify_eddsa(
+    message: String,
+    sig: String,
+    key: impl VerifyFromKey,
+    alg: Algorithm,
+) -> Result<bool, String> {
+    match key.verify(message, sig, alg) {
+        Ok(val) => Ok(val),
+        Err(error) => Err(error.to_string()),
+    }
 }

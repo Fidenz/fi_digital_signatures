@@ -141,11 +141,21 @@ impl VerifyFromKey for HMACKey {
 }
 
 /// Sign the content with the HMAC pass phrase
+#[cfg(not(feature = "wasm"))]
 pub fn sign_hmac(message: String, key: impl SignFromKey, alg: Algorithm) -> Result<String, Error> {
     key.sign(message, alg)
 }
 
+#[cfg(feature = "wasm")]
+pub fn sign_hmac(message: String, key: impl SignFromKey, alg: Algorithm) -> Result<String, String> {
+    match key.sign(message, alg) {
+        Ok(val) => Ok(val),
+        Err(error) => Err(error.to_string()),
+    }
+}
+
 /// Verify the signature with the HMAC pass phrase
+#[cfg(not(feature = "wasm"))]
 pub fn verify_hmac(
     message: String,
     signature: String,
@@ -153,4 +163,17 @@ pub fn verify_hmac(
     alg: Algorithm,
 ) -> Result<bool, Error> {
     key.verify(message, signature, alg)
+}
+
+#[cfg(feature = "wasm")]
+pub fn verify_hmac(
+    message: String,
+    signature: String,
+    key: impl VerifyFromKey,
+    alg: Algorithm,
+) -> Result<bool, String> {
+    match key.verify(message, signature, alg) {
+        Ok(val) => Ok(val),
+        Err(error) => Err(error.to_string()),
+    }
 }

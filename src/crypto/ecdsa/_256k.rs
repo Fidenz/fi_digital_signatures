@@ -360,15 +360,37 @@ impl P256kVerifyingKey {
 }
 
 /// Sign content using [`crate::algorithms::Algorithm::ES256K`] algorithm
+#[cfg(not(feature = "wasm"))]
 pub fn ec_256k_sign(message: String, key: impl SignFromKey) -> Result<String, Error> {
     key.sign(message, Algorithm::ES256K)
 }
 
+#[cfg(feature = "wasm")]
+pub fn ec_256k_sign(message: String, key: impl SignFromKey) -> Result<String, String> {
+    match key.sign(message, Algorithm::ES256K) {
+        Ok(val) => Ok(val),
+        Err(error) => Err(error.to_string()),
+    }
+}
+
 /// Verify signature using [`crate::algorithms::Algorithm::ES256K`] algorithm
+#[cfg(not(feature = "wasm"))]
 pub fn ec_256k_verify(
     message: String,
     sig: String,
     key: impl VerifyFromKey,
 ) -> Result<bool, Error> {
     key.verify(message, sig, Algorithm::ES256K)
+}
+
+#[cfg(feature = "wasm")]
+pub fn ec_256k_verify(
+    message: String,
+    sig: String,
+    key: impl VerifyFromKey,
+) -> Result<bool, String> {
+    match key.verify(message, sig, Algorithm::ES256K) {
+        Ok(val) => Ok(val),
+        Err(error) => Err(error.to_string()),
+    }
 }
