@@ -1,5 +1,5 @@
 use chrono::Utc;
-use did_crypto::{
+use fi_digital_signatures::{
     algorithms::Algorithm,
     crypto::ecdsa::_512::{P512SigningKey, P512VerifyingKey},
     jwt::{Header, Payload, JWT},

@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use did_crypto::{
+use fi_digital_signatures::{
     algorithms::Algorithm,
     crypto::rsa::{RsaSigningKey, RsaVerifyingKey},
     signer::sign,

@@ -1,4 +1,6 @@
-use did_crypto::{algorithms::Algorithm, crypto::hmac::HMACKey, signer::sign, verifier::verify};
+use fi_digital_signatures::{
+    algorithms::Algorithm, crypto::hmac::HMACKey, signer::sign, verifier::verify,
+};
 
 const PASS_KEY: &'static str = "password for testing purposes.";
 

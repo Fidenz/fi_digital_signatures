@@ -1,4 +1,4 @@
-use did_crypto::{
+use fi_digital_signatures::{
     algorithms::Algorithm,
     crypto::eddsa::{EDDSASigningKey, EDDSAVerifyingKey},
     signer::sign,

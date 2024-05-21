@@ -1,8 +1,8 @@
 [package]
-name = "did-crypto"
+name = "fi-digital-signatures"
 version = "0.0.1"
 edition = "2021"
-repository = "https://github.com/fidenz-ravindu/did-crypto"
+repository = "https://github.com/Fidenz/fi_digital_signatures"
 authors = ["Ravindu <ravindu.w@gmail.com"]
 description = "Cryptography library for rust" 
 readme = "README.md"

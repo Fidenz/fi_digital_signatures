@@ -1,10 +1,10 @@
-# did-crypto
-[![crates.io](https://buildstats.info/crate/did_crypto)](https://crates.io/crates/did_crypto)
-![Test](https://github.com/ravindu-rev/did-crypto/actions/workflows/test.yaml/badge.svg)
-![Package publish](https://github.com/ravindu-rev/did-crypto/actions/workflows/publish.yaml/badge.svg)
-![Doc](https://github.com/ravindu-rev/did-crypto/actions/workflows/publish-doc.yaml/badge.svg)
+# fi-digital-signatures
+[![crates.io](https://buildstats.info/crate/fi_digital_signatures)](https://crates.io/crates/fi_digital_signatures)
+![Test](https://github.com/Fidenz/fi-digital-signatures/actions/workflows/test.yaml/badge.svg)
+![Package publish](https://github.com/Fidenz/fi-digital-signatures/actions/workflows/publish.yaml/badge.svg)
+![Doc](https://github.com/Fidenz/fi-digital-signatures/actions/workflows/publish-doc.yaml/badge.svg)
 
-Did-Crypto library is focused on managing the signing and verification. API documentation on [docs.rs](https://docs.rs/did-crypto/latest/did_crypto/)
+**fi-digital-signatures** library is focused on managing the signing and verification. API documentation on [docs.rs](https://docs.rs/fi-digital-signatures/latest/fi_digital_signatures/)
 
 ## Algorithms
 
@@ -30,7 +30,7 @@ This library currently supports the following:
 Signs a string content using a provided algorithm and a signing key
 
 ```rust, ignore
-    use did_crypto::{
+    use fi_digital_signatures::{
         algorithms::Algorithm,
         crypto::ecdsa::{
                 _256k::{P256kSigningKey},
@@ -59,7 +59,7 @@ Signs a string content using a provided algorithm and a signing key
 Verifies the content with the signature using a provided algorithm.
 
 ```rust, ignore
-    use did_crypto::{
+    use fi_digital_signatures::{
         algorithms::Algorithm,
         crypto::ecdsa::{
                 _256k::{P256kVerifyingKey},
@@ -86,7 +86,7 @@ Verifies the content with the signature using a provided algorithm.
 
 ```rust, ignore
     use chrono::Utc;
-    use did_crypto::{
+    use fi_digital_signatures::{
         algorithms::Algorithm,
         crypto::ecdsa::_512::{P512SigningKey, P512VerifyingKey},
         jwt::{Header, Payload, JWT},
@@ -133,7 +133,7 @@ Verifies the content with the signature using a provided algorithm.
 ### Sign a JWT token
 
 ```JS 
-const didCrypto = await import("did-crypto");
+const fiDigitalSignatures = await import("fi-digital-signatures");
 
 let header = new Header(KID, Algorithm.HS256)
 
@@ -142,7 +142,7 @@ let payload = new Payload({
     sub: test
 })
 
-let jwtObject = new didCrypto.JWT(header, payload, null);
+let jwtObject = new fiDigitalSignatures.JWT(header, payload, null);
 // Either a byte array of a private key or 
 // {pem: PEM_CONTENT}, {passphrase: PASSPHRASE} or {n: N_VALUE,e: E_VALUE, ...} 
 jwtObject.sign(SIGNING_OBJECT);
@@ -152,9 +152,9 @@ let token = jwtObject.toToken();
 ### Verify a JWT token
 
 ```JS 
-const didCrypto = await import("did-crypto");
+const fiDigitalSignatures = await import("fi-digital-signatures");
 
-didCrypto.JWT.validate_token(
+fiDigitalSignatures.JWT.validate_token(
     JWT_TOKEN,
     Array.prototype.slice.call(
         Buffer.from(

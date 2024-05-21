@@ -190,33 +190,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "did-crypto"
-version = "0.0.1"
-dependencies = [
- "base64",
- "base64-url",
- "chrono",
- "ed25519-dalek",
- "elliptic-curve",
- "generic-array 1.0.0",
- "getrandom",
- "hex",
- "hmac",
- "js-sys",
- "k256",
- "p256",
- "p384",
- "p521",
- "rand",
- "rsa",
- "serde",
- "serde_json",
- "sha2",
- "wasm-bindgen",
- "wasm-bindgen-test",
-]
-
-[[package]]
 name = "digest"
 version = "0.10.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -295,6 +268,33 @@ checksum = "ded41244b729663b1e574f1b4fb731469f69f79c17667b5d776b16cda0479449"
 dependencies = [
  "rand_core",
  "subtle",
+]
+
+[[package]]
+name = "fi-digital-signatures"
+version = "0.0.1"
+dependencies = [
+ "base64",
+ "base64-url",
+ "chrono",
+ "ed25519-dalek",
+ "elliptic-curve",
+ "generic-array 1.0.0",
+ "getrandom",
+ "hex",
+ "hmac",
+ "js-sys",
+ "k256",
+ "p256",
+ "p384",
+ "p521",
+ "rand",
+ "rsa",
+ "serde",
+ "serde_json",
+ "sha2",
+ "wasm-bindgen",
+ "wasm-bindgen-test",
 ]
 
 [[package]]

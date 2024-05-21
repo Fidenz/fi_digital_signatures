@@ -1,4 +1,4 @@
-name: did-crypto
+name: fi-digital-signatures
 
 on:
   push:
