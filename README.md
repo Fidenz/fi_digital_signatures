@@ -127,3 +127,41 @@ Verifies the content with the signature using a provided algorithm.
         }
     };
 ```
+
+## WASM
+
+### Sign a JWT token
+
+```JS 
+const didCrypto = await import("did-crypto");
+
+let header = new Header(KID, Algorithm.HS256)
+
+let payload = new Payload({
+    exp: EXPIRE,
+    sub: test
+})
+
+let jwtObject = new didCrypto.JWT(header, payload, null);
+// Either a byte array of a private key or 
+// {pem: PEM_CONTENT}, {passphrase: PASSPHRASE} or {n: N_VALUE,e: E_VALUE, ...} 
+jwtObject.sign(SIGNING_OBJECT);
+let token = jwtObject.toToken();
+```
+
+### Verify a JWT token
+
+```JS 
+const didCrypto = await import("did-crypto");
+
+didCrypto.JWT.validate_token(
+    JWT_TOKEN,
+    Array.prototype.slice.call(
+        Buffer.from(
+        "04115b3fa39fae41b4e32f7721ca72f8c1781483647dabd514f08e66128bd47fce9067b90e0488c9c2a9f30f5a266a07841d6c077413ba07e74569b99d4fd3cec6",
+        "hex"
+        ),
+        0
+    )
+)
+```
