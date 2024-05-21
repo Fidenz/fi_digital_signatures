@@ -374,7 +374,7 @@ impl JWT {
     }
 
     /// Retrive jwt token from [`JWT`] token object
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = "toToken")]
     pub fn to_token(&self) -> Result<String, Error> {
         if self.signature.is_none() {
             return Err(Error::JWT_TOKEN_NOT_SIGNED);
@@ -407,7 +407,7 @@ impl JWT {
     }
 
     /// Create [`JWT`] token instance from JWT token string
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = "fromToken")]
     pub fn from_token(token: &str) -> Result<JWT, String> {
         let token_content: Vec<&str> = token.split(".").collect();
 
