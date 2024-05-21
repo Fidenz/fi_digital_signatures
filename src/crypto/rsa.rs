@@ -139,11 +139,11 @@ impl RsaSigningKey {
 
     pub fn from_js_object(value: Object) -> Result<RsaSigningKey, Error> {
         let pem_field = JsValue::from_str("pem");
-        let n_field = JsValue::from_str("pem");
-        let e_field = JsValue::from_str("pem");
-        let d_field = JsValue::from_str("pem");
-        let p_field = JsValue::from_str("pem");
-        let q_field = JsValue::from_str("pem");
+        let n_field = JsValue::from_str("n");
+        let e_field = JsValue::from_str("e");
+        let d_field = JsValue::from_str("d");
+        let p_field = JsValue::from_str("p");
+        let q_field = JsValue::from_str("q");
 
         if value.has_own_property(&pem_field) {
             let pem = match js_sys::Reflect::get(&value, &pem_field) {
