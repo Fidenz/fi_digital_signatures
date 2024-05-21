@@ -83,10 +83,23 @@ impl Error {
 
     /// Missing field in Js object
     pub const MISSING_FIELD: Error = Error("Provided JS object is missing some required fields");
+
+    /// Failed to deserialize json string
+    pub const JSON_DESERIALIZATION_FAILED: Error =
+        Error("Failed to deserialize provided json string");
 }
 
 impl Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.0)
+    }
+}
+
+#[cfg(not(feature = "wasm"))]
+#[wasm_bindgen]
+impl Error {
+    #[wasm_bindgen(js_name = "toString")]
+    pub fn to_string(&self) -> String {
+        self.0.to_string()
     }
 }

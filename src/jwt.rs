@@ -3,6 +3,8 @@ use crate::crypto::{SignFromKey, VerifyFromKey};
 use crate::{algorithms::Algorithm, errors::Error, log, signer::sign, verifier::verify};
 use base64::{engine::general_purpose::STANDARD, Engine};
 use chrono::{DateTime, Utc};
+#[cfg(feature = "wasm")]
+use js_sys::Object;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use serde_json::Value;
 #[cfg(feature = "wasm")]
@@ -154,6 +156,34 @@ impl ToString for Payload {
                 panic!()
             }
         }
+    }
+}
+
+#[cfg(feature = "wasm")]
+#[wasm_bindgen]
+impl Payload {
+    #[wasm_bindgen(js_name = "fromObject")]
+    pub fn from_object(value: Object) -> Result<Payload, Error> {
+        let json_string = match js_sys::JSON::stringify(&value) {
+            Ok(val) => match val.as_string() {
+                Some(v) => v,
+                None => {
+                    log::error("No string content found in js value");
+                    return Err(Error::JSON_DESERIALIZATION_FAILED);
+                }
+            },
+            Err(error) => {
+                log::error(error.as_string().unwrap().as_str());
+                return Err(Error::JSON_DESERIALIZATION_FAILED);
+            }
+        };
+        Ok(Payload(match serde_json::from_str(json_string.as_str()) {
+            Ok(val) => val,
+            Err(_error) => {
+                // log::error(error.as_string().unwrap().as_str());
+                return Err(Error::JSON_DESERIALIZATION_FAILED);
+            }
+        }))
     }
 }
 
@@ -333,6 +363,16 @@ impl JWT {
 #[cfg(feature = "wasm")]
 #[wasm_bindgen]
 impl JWT {
+    /// Create instance of [`JWT`]
+    #[wasm_bindgen(constructor)]
+    pub fn new(header: Header, payload: Payload, signature: Option<Signature>) -> JWT {
+        JWT {
+            header,
+            payload,
+            signature,
+        }
+    }
+
     /// Retrive jwt token from [`JWT`] token object
     #[wasm_bindgen]
     pub fn to_token(&self) -> Result<String, Error> {
@@ -391,12 +431,12 @@ impl JWT {
         })
     }
 
-    fn check_if_expired(timestamp_secs: i64) -> Result<bool, Error> {
+    fn check_if_expired(timestamp_secs: i64) -> Result<bool, String> {
         let now = Utc::now();
         let exp_time = match DateTime::from_timestamp_millis(timestamp_secs * 1000) {
             Some(val) => val,
             None => {
-                return Err(Error::FAILED_TO_CONVERT_TIMESTAMP_TO_DATETTIME);
+                return Err(Error::FAILED_TO_CONVERT_TIMESTAMP_TO_DATETTIME.to_string());
             }
         };
 
@@ -405,12 +445,12 @@ impl JWT {
 
     /// Verfify the [`JWT`] token and check if the token is expired
     #[wasm_bindgen]
-    pub fn validate(&self, public_key: js_sys::Object) -> Result<bool, Error> {
+    pub fn validate(&self, public_key: js_sys::Object) -> Result<bool, String> {
         let algorithm = self.header.alg;
 
         let signature = match &self.signature {
             Some(val) => val.clone(),
-            None => return Err(Error::JWT_NO_SIGNATURE_FOUND),
+            None => return Err(Error::JWT_NO_SIGNATURE_FOUND.to_string()),
         };
 
         let verified = match verify(
@@ -424,7 +464,7 @@ impl JWT {
             algorithm,
         ) {
             Ok(val) => val,
-            Err(error) => return Err(error),
+            Err(error) => return Err(error.to_string()),
         };
 
         if !verified {
@@ -434,9 +474,9 @@ impl JWT {
         let exp = match self.payload.0.get("exp") {
             Some(val) => match val.as_i64() {
                 Some(val) => val,
-                None => return Err(Error::JWT_PAYLOAD_FIELD_EXP_IDENTIFICATION_ERROR),
+                None => return Err(Error::JWT_PAYLOAD_FIELD_EXP_IDENTIFICATION_ERROR.to_string()),
             },
-            None => return Err(Error::JWT_PAYLOAD_MISSING_FIELD_EXP),
+            None => return Err(Error::JWT_PAYLOAD_MISSING_FIELD_EXP.to_string()),
         };
 
         Self::check_if_expired(exp)
@@ -448,21 +488,34 @@ impl JWT {
     pub fn validate_token(
         token_str: &str,
         public_key: js_sys::Object,
-    ) -> Result<Option<JWT>, Error> {
+    ) -> Result<wasm_bindgen::JsValue, String> {
         let token = match Self::from_token(token_str) {
             Ok(val) => val,
-            Err(error) => return Err(error),
+            Err(error) => return Err(error.to_string()),
         };
 
         let verified = match token.validate(public_key) {
             Ok(val) => val,
-            Err(error) => return Err(error),
+            Err(error) => return Err(error.to_string()),
         };
 
         if verified {
-            Ok(Some(token))
+            let js_str = match serde_json::to_string(&token) {
+                Ok(val) => val,
+                Err(error) => {
+                    log::error(error.to_string().as_str());
+                    return Err(Error::JSON_DESERIALIZATION_FAILED.to_string());
+                }
+            };
+
+            let js_obj = match js_sys::JSON::parse(js_str.as_str()) {
+                Ok(val) => val,
+                Err(error) => return Err(error.as_string().unwrap()),
+            };
+
+            Ok(js_obj)
         } else {
-            Ok(None)
+            Ok(wasm_bindgen::JsValue::UNDEFINED)
         }
     }
 }
