@@ -325,6 +325,7 @@ impl EDDSAVerifyingKey {
     }
 }
 
+/// Sign content using [`crate::algorithms::Algorithm::EdDSA`] algorithm
 #[cfg(not(feature = "wasm"))]
 pub fn sign_eddsa(message: String, key: impl SignFromKey, alg: Algorithm) -> Result<String, Error> {
     key.sign(message, alg)
@@ -342,6 +343,7 @@ pub fn sign_eddsa(
     }
 }
 
+/// Verify signature using [`crate::algorithms::Algorithm::EdDSA`] algorithm
 #[cfg(not(feature = "wasm"))]
 pub fn verify_eddsa(
     message: String,
