@@ -19,21 +19,14 @@ jobs:
         run: cargo login ${{ secrets.CARGO_API_TOKEN }}
       - name: Publish
         run: cargo publish
+
   publish-wasm:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [16.x]
 
     steps:
       - uses: actions/checkout@v4
       - name: wasm-pack-action
         uses: jetli/wasm-pack-action@v0.4.0
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: "npm"
       - run: npm config set _authToken=${{ secrets.NPM_AUTH_TOKEN }}
       - name: Builds
         run: wasm-pack build --features wasm
