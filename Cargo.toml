@@ -7,7 +7,7 @@ authors = ["Ravindu <ravindu.w@gmail.com"]
 description = "Cryptography library for rust" 
 readme = "README.md"
 license = "MIT OR Apache-2.0"
-keywords = ["cryptography", "crypto", "jwt", "sign", "verify", "signatures"]
+keywords = ["crypto", "jwt", "sign", "verify", "signatures"]
 categories = ["cryptography", "signatures"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
