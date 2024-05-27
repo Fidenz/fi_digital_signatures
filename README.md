@@ -132,7 +132,7 @@ Verifies the content with the signature using a provided algorithm.
 
 ### Sign a JWT token
 
-```JS 
+```javascript 
 const fiDigitalSignatures = await import("fi-digital-signatures");
 
 let header = new Header(KID, Algorithm.HS256)
@@ -151,7 +151,7 @@ let token = jwtObject.toToken();
 
 ### Verify a JWT token
 
-```JS 
+```javascript 
 const fiDigitalSignatures = await import("fi-digital-signatures");
 
 fiDigitalSignatures.JWT.validate_token(
