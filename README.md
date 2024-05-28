@@ -1,8 +1,8 @@
 # fi-digital-signatures
 [![crates.io](https://buildstats.info/crate/fi_digital_signatures)](https://crates.io/crates/fi_digital_signatures)
-![Test](https://github.com/Fidenz/fi-digital-signatures/actions/workflows/test.yaml/badge.svg)
-![Package publish](https://github.com/Fidenz/fi-digital-signatures/actions/workflows/publish.yaml/badge.svg)
-![Doc](https://github.com/Fidenz/fi-digital-signatures/actions/workflows/publish-doc.yaml/badge.svg)
+![Test](https://github.com/Fidenz/fi_digital_signatures/actions/workflows/test.yaml/badge.svg)
+![Package publish](https://github.com/Fidenz/fi_digital_signatures/actions/workflows/publish.yaml/badge.svg)
+![Doc](https://github.com/Fidenz/fi_digital_signatures/actions/workflows/publish-doc.yaml/badge.svg)
 
 **fi-digital-signatures** library is focused on managing the signing and verification. API documentation on [docs.rs](https://docs.rs/fi-digital-signatures/latest/fi_digital_signatures/)
 
