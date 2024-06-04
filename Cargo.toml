@@ -1,6 +1,6 @@
 [package]
 name = "fi-digital-signatures"
-version = "0.0.3"
+version = "0.0.4"
 edition = "2021"
 repository = "https://github.com/Fidenz/fi_digital_signatures"
 authors = ["Ravindu <ravindu.w@gmail.com"]
