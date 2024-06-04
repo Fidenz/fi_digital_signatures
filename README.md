@@ -8,7 +8,7 @@
 
 ## Algorithms
 
-This library currently supports the following:
+This library currently supports the following algorithms:
 
 - HS256
 - HS384
@@ -25,7 +25,7 @@ This library currently supports the following:
 - ES256K
 - EdDSA
 
-## Signer
+## Signer - Rust
 
 Signs a string content using a provided algorithm and a signing key
 
@@ -54,7 +54,7 @@ Signs a string content using a provided algorithm and a signing key
     };
 ```
 
-## Verifier
+## Verifier - Rust
 
 Verifies the content with the signature using a provided algorithm.
 
@@ -82,7 +82,7 @@ Verifies the content with the signature using a provided algorithm.
     };
 ```
 
-## JWT
+## JWT - Rust
 
 ```rust, ignore
     use chrono::Utc;
@@ -126,11 +126,9 @@ Verifies the content with the signature using a provided algorithm.
             panic!()
         }
     };
-```
+``` 
 
-## WASM
-
-### Sign a JWT token
+## Sign a JWT token - WASM
 
 ```javascript 
 const fiDigitalSignatures = await import("fi-digital-signatures");
@@ -149,7 +147,7 @@ jwtObject.sign(SIGNING_OBJECT);
 let token = jwtObject.toToken();
 ```
 
-### Verify a JWT token
+## Verify a JWT token - WASM
 
 ```javascript 
 const fiDigitalSignatures = await import("fi-digital-signatures");
