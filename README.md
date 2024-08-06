@@ -1,14 +1,14 @@
 # fi-digital-signatures
 [![crates.io](https://buildstats.info/crate/fi_digital_signatures)](https://crates.io/crates/fi_digital_signatures)
-![Test](https://github.com/Fidenz/fi-digital-signatures/actions/workflows/test.yaml/badge.svg)
-![Package publish](https://github.com/Fidenz/fi-digital-signatures/actions/workflows/publish.yaml/badge.svg)
-![Doc](https://github.com/Fidenz/fi-digital-signatures/actions/workflows/publish-doc.yaml/badge.svg)
+![Test](https://github.com/Fidenz/fi_digital_signatures/actions/workflows/test.yaml/badge.svg)
+![Package publish](https://github.com/Fidenz/fi_digital_signatures/actions/workflows/publish.yaml/badge.svg)
+![Doc](https://github.com/Fidenz/fi_digital_signatures/actions/workflows/publish-doc.yaml/badge.svg)
 
 **fi-digital-signatures** library is focused on managing the signing and verification. API documentation on [docs.rs](https://docs.rs/fi-digital-signatures/latest/fi_digital_signatures/)
 
 ## Algorithms
 
-This library currently supports the following:
+This library currently supports the following algorithms:
 
 - HS256
 - HS384
@@ -25,7 +25,7 @@ This library currently supports the following:
 - ES256K
 - EdDSA
 
-## Signer
+## Signer - Rust
 
 Signs a string content using a provided algorithm and a signing key
 
@@ -54,7 +54,7 @@ Signs a string content using a provided algorithm and a signing key
     };
 ```
 
-## Verifier
+## Verifier - Rust
 
 Verifies the content with the signature using a provided algorithm.
 
@@ -82,7 +82,7 @@ Verifies the content with the signature using a provided algorithm.
     };
 ```
 
-## JWT
+## JWT - Rust
 
 ```rust, ignore
     use chrono::Utc;
@@ -126,13 +126,11 @@ Verifies the content with the signature using a provided algorithm.
             panic!()
         }
     };
-```
+``` 
 
-## WASM
+## Sign a JWT token - WASM
 
-### Sign a JWT token
-
-```JS 
+```javascript 
 const fiDigitalSignatures = await import("fi-digital-signatures");
 
 let header = new Header(KID, Algorithm.HS256)
@@ -149,9 +147,9 @@ jwtObject.sign(SIGNING_OBJECT);
 let token = jwtObject.toToken();
 ```
 
-### Verify a JWT token
+## Verify a JWT token - WASM
 
-```JS 
+```javascript 
 const fiDigitalSignatures = await import("fi-digital-signatures");
 
 fiDigitalSignatures.JWT.validate_token(

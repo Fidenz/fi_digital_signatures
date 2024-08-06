@@ -1,14 +1,14 @@
 [package]
 name = "fi-digital-signatures"
-version = "0.0.1"
+version = "0.0.4"
 edition = "2021"
 repository = "https://github.com/Fidenz/fi_digital_signatures"
 authors = ["Ravindu <ravindu.w@gmail.com"]
-description = "Cryptography library for rust" 
+description = "Cryptography library for rust and WASM" 
 readme = "README.md"
 license = "MIT OR Apache-2.0"
-keywords = ["cryptography", "crypto", "jwt", "sign", "verify", "signatures"]
-categories = ["cryptography", "signatures"]
+keywords = ["crypto", "jwt", "sign", "verify", "signatures"]
+categories = ["cryptography"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
