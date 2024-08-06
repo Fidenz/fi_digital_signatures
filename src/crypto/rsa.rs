@@ -77,6 +77,18 @@ impl RsaSigningKey {
         Ok(RsaSigningKey { key: rsa_key })
     }
 
+    pub fn from_bytes(bytes: &[u8]) -> Result<RsaSigningKey, Error> {
+        let rsa_key = match rsa::RsaPrivateKey::from_pkcs8_der(bytes) {
+            Err(error) => {
+                log::error(error.to_string().as_str());
+                return Err(Error::PRIVATE_KEY_IDENTIFICATION_ERROR);
+            }
+            Ok(val) => val,
+        };
+
+        return Ok(RsaSigningKey { key: rsa_key });
+    }
+
     // Import <b>RsaSigningKey</b> from RSA private key components
     #[cfg(not(feature = "wasm"))]
     pub fn from_components(
@@ -307,6 +319,18 @@ impl RsaVerifyingKey {
         };
 
         Ok(RsaVerifyingKey { key: rsa_key })
+    }
+
+    pub fn from_bytes(bytes: &[u8]) -> Result<RsaVerifyingKey, Error> {
+        let rsa_key = match rsa::RsaPublicKey::from_public_key_der(bytes) {
+            Err(error) => {
+                log::error(error.to_string().as_str());
+                return Err(Error::PRIVATE_KEY_IDENTIFICATION_ERROR);
+            }
+            Ok(val) => val,
+        };
+
+        return Ok(RsaVerifyingKey { key: rsa_key });
     }
 }
 
