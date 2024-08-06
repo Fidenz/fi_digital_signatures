@@ -87,6 +87,10 @@ impl Error {
     /// Failed to deserialize json string
     pub const JSON_DESERIALIZATION_FAILED: Error =
         Error("Failed to deserialize provided json string");
+
+    ///
+    pub const NOT_USING_ASYMMETRIC_KEYS: Error =
+        Error("This algorithm doesn't use asymmetric keys.");
 }
 
 impl Display for Error {

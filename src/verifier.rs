@@ -4,7 +4,15 @@ use crate::crypto::VerifyFromKey;
 use crate::crypto::{eddsa::EDDSAVerifyingKey, hmac::HMACKey, rsa::RsaVerifyingKey};
 use crate::{
     algorithms::{Algorithm, AlgorithmFamily},
-    crypto::{ecdsa::verify_ec, eddsa::verify_eddsa, hmac::verify_hmac, rsa::verify_rsa},
+    crypto::{
+        ecdsa::{
+            _256k::P256kVerifyingKey, verify_ec, _256::P256VerifyingKey, _384::P384VerifyingKey,
+            _512::P512VerifyingKey,
+        },
+        eddsa::{verify_eddsa, EDDSAVerifyingKey},
+        hmac::verify_hmac,
+        rsa::{verify_rsa, RsaVerifyingKey},
+    },
     errors::Error,
 };
 #[cfg(feature = "wasm")]
@@ -69,5 +77,60 @@ pub fn verify(
             alg,
         ),
         _ => return Err(Error::UNKNOWN_ALGORITHM.to_string()),
+    }
+}
+
+pub fn get_verifying_key(
+    alg: Algorithm,
+    key_bytes: &mut [u8],
+) -> Result<Box<dyn VerifyFromKey>, Error> {
+    match alg {
+        Algorithm::ES256 => match P256VerifyingKey::from_bytes(key_bytes) {
+            Ok(val) => return Ok(Box::new(val)),
+            Err(error) => return Err(error),
+        },
+        Algorithm::ES256K => match P256kVerifyingKey::from_bytes(key_bytes) {
+            Ok(val) => return Ok(Box::new(val)),
+            Err(error) => return Err(error),
+        },
+        Algorithm::ES384 => match P384VerifyingKey::from_bytes(key_bytes) {
+            Ok(val) => return Ok(Box::new(val)),
+            Err(error) => return Err(error),
+        },
+        Algorithm::ES512 => match P512VerifyingKey::from_bytes(key_bytes) {
+            Ok(val) => return Ok(Box::new(val)),
+            Err(error) => return Err(error),
+        },
+        Algorithm::RS256 => match RsaVerifyingKey::from_bytes(key_bytes) {
+            Ok(val) => return Ok(Box::new(val)),
+            Err(error) => return Err(error),
+        },
+        Algorithm::RS384 => match RsaVerifyingKey::from_bytes(key_bytes) {
+            Ok(val) => return Ok(Box::new(val)),
+            Err(error) => return Err(error),
+        },
+        Algorithm::RS512 => match RsaVerifyingKey::from_bytes(key_bytes) {
+            Ok(val) => return Ok(Box::new(val)),
+            Err(error) => return Err(error),
+        },
+        Algorithm::PS256 => match RsaVerifyingKey::from_bytes(key_bytes) {
+            Ok(val) => return Ok(Box::new(val)),
+            Err(error) => return Err(error),
+        },
+        Algorithm::PS384 => match RsaVerifyingKey::from_bytes(key_bytes) {
+            Ok(val) => return Ok(Box::new(val)),
+            Err(error) => return Err(error),
+        },
+        Algorithm::PS512 => match RsaVerifyingKey::from_bytes(key_bytes) {
+            Ok(val) => return Ok(Box::new(val)),
+            Err(error) => return Err(error),
+        },
+        Algorithm::HS256 => return Err(Error::NOT_USING_ASYMMETRIC_KEYS),
+        Algorithm::HS384 => return Err(Error::NOT_USING_ASYMMETRIC_KEYS),
+        Algorithm::HS512 => return Err(Error::NOT_USING_ASYMMETRIC_KEYS),
+        Algorithm::EdDSA => match EDDSAVerifyingKey::from_bytes(key_bytes) {
+            Ok(val) => return Ok(Box::new(val)),
+            Err(error) => return Err(error),
+        },
     }
 }

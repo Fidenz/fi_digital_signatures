@@ -1,6 +1,14 @@
 use crate::{
     algorithms::{Algorithm, AlgorithmFamily},
-    crypto::{ecdsa::sign_ec, eddsa::sign_eddsa, hmac::sign_hmac, rsa::sign_rsa},
+    crypto::{
+        ecdsa::{
+            _256k::P256kSigningKey, sign_ec, _256::P256SigningKey, _384::P384SigningKey,
+            _512::P512SigningKey,
+        },
+        eddsa::{sign_eddsa, EDDSASigningKey},
+        hmac::sign_hmac,
+        rsa::{sign_rsa, RsaSigningKey},
+    },
     errors::Error,
 };
 
@@ -57,5 +65,60 @@ pub fn sign(message: String, key: Object, alg: Algorithm) -> Result<String, Stri
             alg,
         ),
         _ => return Err(Error::UNKNOWN_ALGORITHM.to_string()),
+    }
+}
+
+pub fn get_signing_key(
+    alg: Algorithm,
+    key_bytes: &mut [u8],
+) -> Result<Box<dyn SignFromKey>, Error> {
+    match alg {
+        Algorithm::ES256 => match P256SigningKey::from_bytes(key_bytes) {
+            Ok(val) => return Ok(Box::new(val)),
+            Err(error) => return Err(error),
+        },
+        Algorithm::ES256K => match P256kSigningKey::from_bytes(key_bytes) {
+            Ok(val) => return Ok(Box::new(val)),
+            Err(error) => return Err(error),
+        },
+        Algorithm::ES384 => match P384SigningKey::from_bytes(key_bytes) {
+            Ok(val) => return Ok(Box::new(val)),
+            Err(error) => return Err(error),
+        },
+        Algorithm::ES512 => match P512SigningKey::from_bytes(key_bytes) {
+            Ok(val) => return Ok(Box::new(val)),
+            Err(error) => return Err(error),
+        },
+        Algorithm::RS256 => match RsaSigningKey::from_bytes(key_bytes) {
+            Ok(val) => return Ok(Box::new(val)),
+            Err(error) => return Err(error),
+        },
+        Algorithm::RS384 => match RsaSigningKey::from_bytes(key_bytes) {
+            Ok(val) => return Ok(Box::new(val)),
+            Err(error) => return Err(error),
+        },
+        Algorithm::RS512 => match RsaSigningKey::from_bytes(key_bytes) {
+            Ok(val) => return Ok(Box::new(val)),
+            Err(error) => return Err(error),
+        },
+        Algorithm::PS256 => match RsaSigningKey::from_bytes(key_bytes) {
+            Ok(val) => return Ok(Box::new(val)),
+            Err(error) => return Err(error),
+        },
+        Algorithm::PS384 => match RsaSigningKey::from_bytes(key_bytes) {
+            Ok(val) => return Ok(Box::new(val)),
+            Err(error) => return Err(error),
+        },
+        Algorithm::PS512 => match RsaSigningKey::from_bytes(key_bytes) {
+            Ok(val) => return Ok(Box::new(val)),
+            Err(error) => return Err(error),
+        },
+        Algorithm::HS256 => return Err(Error::NOT_USING_ASYMMETRIC_KEYS),
+        Algorithm::HS384 => return Err(Error::NOT_USING_ASYMMETRIC_KEYS),
+        Algorithm::HS512 => return Err(Error::NOT_USING_ASYMMETRIC_KEYS),
+        Algorithm::EdDSA => match EDDSASigningKey::from_bytes(key_bytes) {
+            Ok(val) => return Ok(Box::new(val)),
+            Err(error) => return Err(error),
+        },
     }
 }
