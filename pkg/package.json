@@ -1,0 +1,30 @@
+{
+  "name": "fi-digital-signatures",
+  "collaborators": [
+    "Ravindu <ravindu.w@gmail.com"
+  ],
+  "description": "Cryptography library for rust and WASM",
+  "version": "0.0.5",
+  "license": "MIT OR Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Fidenz/fi_digital_signatures"
+  },
+  "files": [
+    "fi_digital_signatures_bg.wasm",
+    "fi_digital_signatures.js",
+    "fi_digital_signatures.d.ts"
+  ],
+  "module": "fi_digital_signatures.js",
+  "types": "fi_digital_signatures.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ],
+  "keywords": [
+    "crypto",
+    "jwt",
+    "sign",
+    "verify",
+    "signatures"
+  ]
+}
