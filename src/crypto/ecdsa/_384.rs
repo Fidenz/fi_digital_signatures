@@ -366,10 +366,10 @@ pub fn ec_384_sign(message: String, key: impl SignFromKey) -> Result<String, Err
 }
 
 #[cfg(feature = "wasm")]
-pub fn ec_384_sign(message: String, key: impl SignFromKey) -> Result<String, String> {
+pub fn ec_384_sign(message: String, key: impl SignFromKey) -> Result<String, Error> {
     match key.sign(message, Algorithm::ES384) {
         Ok(val) => Ok(val),
-        Err(error) => Err(error.to_string()),
+        Err(error) => Err(error),
     }
 }
 
@@ -380,13 +380,9 @@ pub fn ec_384_verify(message: String, sig: String, key: impl VerifyFromKey) -> R
 }
 
 #[cfg(feature = "wasm")]
-pub fn ec_384_verify(
-    message: String,
-    sig: String,
-    key: impl VerifyFromKey,
-) -> Result<bool, String> {
+pub fn ec_384_verify(message: String, sig: String, key: impl VerifyFromKey) -> Result<bool, Error> {
     match key.verify(message, sig, Algorithm::ES384) {
         Ok(val) => Ok(val),
-        Err(error) => Err(error.to_string()),
+        Err(error) => Err(error),
     }
 }

@@ -398,7 +398,7 @@ impl JWT {
 
     /// Sign the current [`JWT`] token object
     #[wasm_bindgen]
-    pub fn sign(&mut self, private_key: js_sys::Object) -> Result<(), String> {
+    pub fn sign(&mut self, private_key: js_sys::Object) -> Result<(), Error> {
         let content = format!(
             "{}.{}",
             self.header.to_base64_encoded(),
@@ -409,23 +409,23 @@ impl JWT {
                 self.signature = Some(Signature(val));
                 Ok(())
             }
-            Err(error) => Err(error.to_string()),
+            Err(error) => Err(error),
         }
     }
 
     /// Create [`JWT`] token instance from JWT token string
     #[wasm_bindgen(js_name = "fromToken")]
-    pub fn from_token(token: &str) -> Result<JWT, String> {
+    pub fn from_token(token: &str) -> Result<JWT, Error> {
         let token_content: Vec<&str> = token.split(".").collect();
 
         let header = match Header::from_base64_encoded(token_content[0]) {
             Ok(val) => val,
-            Err(error) => return Err(error.to_string()),
+            Err(error) => return Err(error),
         };
 
         let payload = match Payload::from_base64_encoded(token_content[1]) {
             Ok(val) => val,
-            Err(error) => return Err(error.to_string()),
+            Err(error) => return Err(error),
         };
 
         let signature: Signature = Signature(String::from(token_content[2]));
@@ -437,13 +437,13 @@ impl JWT {
         })
     }
 
-    fn check_if_expired(timestamp_secs: i64) -> Result<bool, String> {
+    fn check_if_expired(timestamp_secs: i64) -> Result<bool, Error> {
         let now = Utc::now();
         let exp_time = match DateTime::from_timestamp_millis(timestamp_secs * 1000) {
             Some(val) => val,
             None => {
                 return Err(Error::new(
-                    crate::errors::FAILED_TO_CONVERT_TIMESTAMP_TO_DATETTIME.to_string(),
+                    crate::errors::FAILED_TO_CONVERT_TIMESTAMP_TO_DATETTIME,
                 ));
             }
         };
@@ -453,16 +453,12 @@ impl JWT {
 
     /// Verfify the [`JWT`] token and check if the token is expired
     #[wasm_bindgen]
-    pub fn validate(&self, public_key: js_sys::Object) -> Result<bool, String> {
+    pub fn validate(&self, public_key: js_sys::Object) -> Result<bool, Error> {
         let algorithm = self.header.alg;
 
         let signature = match &self.signature {
             Some(val) => val.clone(),
-            None => {
-                return Err(Error::new(
-                    crate::errors::JWT_NO_SIGNATURE_FOUND.to_string(),
-                ))
-            }
+            None => return Err(Error::new(crate::errors::JWT_NO_SIGNATURE_FOUND)),
         };
 
         let verified = match verify(
@@ -476,7 +472,7 @@ impl JWT {
             algorithm,
         ) {
             Ok(val) => val,
-            Err(error) => return Err(error.to_string()),
+            Err(error) => return Err(error),
         };
 
         if !verified {
@@ -488,15 +484,11 @@ impl JWT {
                 Some(val) => val,
                 None => {
                     return Err(Error::new(
-                        crate::errors::JWT_PAYLOAD_FIELD_EXP_IDENTIFICATION_ERROR.to_string(),
+                        crate::errors::JWT_PAYLOAD_FIELD_EXP_IDENTIFICATION_ERROR,
                     ))
                 }
             },
-            None => {
-                return Err(Error::new(
-                    crate::errors::JWT_PAYLOAD_MISSING_FIELD_EXP.to_string(),
-                ))
-            }
+            None => return Err(Error::new(crate::errors::JWT_PAYLOAD_MISSING_FIELD_EXP)),
         };
 
         Self::check_if_expired(exp)
@@ -508,15 +500,15 @@ impl JWT {
     pub fn validate_token(
         token_str: &str,
         public_key: js_sys::Object,
-    ) -> Result<wasm_bindgen::JsValue, String> {
+    ) -> Result<wasm_bindgen::JsValue, Error> {
         let token = match Self::from_token(token_str) {
             Ok(val) => val,
-            Err(error) => return Err(error.to_string()),
+            Err(error) => return Err(error),
         };
 
         let verified = match token.validate(public_key) {
             Ok(val) => val,
-            Err(error) => return Err(error.to_string()),
+            Err(error) => return Err(error),
         };
 
         if verified {
@@ -524,15 +516,13 @@ impl JWT {
                 Ok(val) => val,
                 Err(error) => {
                     fi_common::logger::error(error.to_string().as_str());
-                    return Err(Error::new(
-                        crate::errors::JSON_DESERIALIZATION_FAILED.to_string(),
-                    ));
+                    return Err(Error::new(crate::errors::JSON_DESERIALIZATION_FAILED));
                 }
             };
 
             let js_obj = match js_sys::JSON::parse(js_str.as_str()) {
                 Ok(val) => val,
-                Err(error) => return Err(error.as_string().unwrap()),
+                Err(_error) => return Err(Error::new("JSON parse failed")),
             };
 
             Ok(js_obj)

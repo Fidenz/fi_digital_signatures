@@ -472,10 +472,10 @@ pub fn sign_rsa(message: String, key: impl SignFromKey, alg: Algorithm) -> Resul
 }
 
 #[cfg(feature = "wasm")]
-pub fn sign_rsa(message: String, key: impl SignFromKey, alg: Algorithm) -> Result<String, String> {
+pub fn sign_rsa(message: String, key: impl SignFromKey, alg: Algorithm) -> Result<String, Error> {
     match key.sign(message, alg) {
         Ok(val) => Ok(val),
-        Err(error) => Err(error.to_string()),
+        Err(error) => Err(error),
     }
 }
 
@@ -496,9 +496,9 @@ pub fn verify_rsa(
     signature: String,
     key: impl VerifyFromKey,
     alg: Algorithm,
-) -> Result<bool, String> {
+) -> Result<bool, Error> {
     match key.verify(message, signature, alg) {
         Ok(val) => Ok(val),
-        Err(error) => Err(error.to_string()),
+        Err(error) => Err(error),
     }
 }

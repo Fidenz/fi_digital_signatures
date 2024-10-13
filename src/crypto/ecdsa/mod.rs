@@ -40,37 +40,37 @@ pub fn sign_ec(message: String, key: impl SignFromKey, alg: Algorithm) -> Result
 }
 
 #[cfg(feature = "wasm")]
-pub fn sign_ec(message: String, key: Object, alg: Algorithm) -> Result<String, String> {
+pub fn sign_ec(message: String, key: Object, alg: Algorithm) -> Result<String, Error> {
     match alg {
         Algorithm::ES256 => ec_256_sign(
             message,
             match P256SigningKey::from_js_object(key) {
                 Ok(val) => val,
-                Err(error) => return Err(error.to_string()),
+                Err(error) => return Err(error),
             },
         ),
         Algorithm::ES384 => ec_384_sign(
             message,
             match P384SigningKey::from_js_object(key) {
                 Ok(val) => val,
-                Err(error) => return Err(error.to_string()),
+                Err(error) => return Err(error),
             },
         ),
         Algorithm::ES512 => ec_512_sign(
             message,
             match P512SigningKey::from_js_object(key) {
                 Ok(val) => val,
-                Err(error) => return Err(error.to_string()),
+                Err(error) => return Err(error),
             },
         ),
         Algorithm::ES256K => ec_256k_sign(
             message,
             match P256kSigningKey::from_js_object(key) {
                 Ok(val) => val,
-                Err(error) => return Err(error.to_string()),
+                Err(error) => return Err(error),
             },
         ),
-        _ => return Err(Error::new(crate::errors::UNKNOWN_ALGORITHM.to_string())),
+        _ => return Err(Error::new(crate::errors::UNKNOWN_ALGORITHM)),
     }
 }
 
@@ -97,14 +97,14 @@ pub fn verify_ec(
     signature: String,
     key: Object,
     alg: Algorithm,
-) -> Result<bool, String> {
+) -> Result<bool, Error> {
     match alg {
         Algorithm::ES256 => ec_256_verify(
             message,
             signature,
             match P256VerifyingKey::from_js_object(key) {
                 Ok(val) => val,
-                Err(error) => return Err(error.to_string()),
+                Err(error) => return Err(error),
             },
         ),
         Algorithm::ES384 => ec_384_verify(
@@ -112,7 +112,7 @@ pub fn verify_ec(
             signature,
             match P384VerifyingKey::from_js_object(key) {
                 Ok(val) => val,
-                Err(error) => return Err(error.to_string()),
+                Err(error) => return Err(error),
             },
         ),
         Algorithm::ES512 => ec_512_verify(
@@ -120,7 +120,7 @@ pub fn verify_ec(
             signature,
             match P512VerifyingKey::from_js_object(key) {
                 Ok(val) => val,
-                Err(error) => return Err(error.to_string()),
+                Err(error) => return Err(error),
             },
         ),
         Algorithm::ES256K => ec_256k_verify(
@@ -128,9 +128,9 @@ pub fn verify_ec(
             signature,
             match P256VerifyingKey::from_js_object(key) {
                 Ok(val) => val,
-                Err(error) => return Err(error.to_string()),
+                Err(error) => return Err(error),
             },
         ),
-        _ => return Err(Error::new(crate::errors::UNKNOWN_ALGORITHM.to_string())),
+        _ => return Err(Error::new(crate::errors::UNKNOWN_ALGORITHM)),
     }
 }
