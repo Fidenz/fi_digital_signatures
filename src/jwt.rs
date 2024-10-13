@@ -1,8 +1,9 @@
 #[cfg(not(feature = "wasm"))]
 use crate::crypto::{SignFromKey, VerifyFromKey};
-use crate::{algorithms::Algorithm, errors::Error, log, signer::sign, verifier::verify};
+use crate::{algorithms::Algorithm, signer::sign, verifier::verify};
 use base64::{engine::general_purpose::STANDARD, Engine};
 use chrono::{DateTime, Utc};
+use fi_common::error::Error;
 #[cfg(feature = "wasm")]
 use js_sys::Object;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
@@ -28,21 +29,21 @@ where
             Ok(val) => match String::from_utf8(val) {
                 Ok(val) => val,
                 Err(error) => {
-                    log::error(error.to_string().as_str());
-                    return Err(Error::JWT_UTF8_ERROR);
+                    fi_common::logger::error(error.to_string().as_str());
+                    return Err(Error::new(crate::errors::JWT_UTF8_ERROR));
                 }
             },
             Err(error) => {
-                log::error(error.to_string().as_str());
-                return Err(Error::DECODING_ERROR);
+                fi_common::logger::error(error.to_string().as_str());
+                return Err(Error::new(crate::errors::DECODING_ERROR));
             }
         };
 
         match serde_json::from_str(base64_decoded.as_str()) {
             Ok(val) => Ok(val),
             Err(error) => {
-                log::error(error.to_string().as_str());
-                return Err(Error::JWT_HEADER_DESERIALIZING_ERROR);
+                fi_common::logger::error(error.to_string().as_str());
+                return Err(Error::new(crate::errors::JWT_HEADER_DESERIALIZING_ERROR));
             }
         }
     }
@@ -127,7 +128,7 @@ impl ToString for Header {
         match serde_json::to_string(self) {
             Ok(val) => val,
             Err(error) => {
-                log::error(error.to_string().as_str());
+                fi_common::logger::error(error.to_string().as_str());
                 panic!()
             }
         }
@@ -152,7 +153,7 @@ impl ToString for Payload {
         match serde_json::to_string(self) {
             Ok(val) => val,
             Err(error) => {
-                log::error(error.to_string().as_str());
+                fi_common::logger::error(error.to_string().as_str());
                 panic!()
             }
         }
@@ -168,20 +169,20 @@ impl Payload {
             Ok(val) => match val.as_string() {
                 Some(v) => v,
                 None => {
-                    log::error("No string content found in js value");
-                    return Err(Error::JSON_DESERIALIZATION_FAILED);
+                    fi_common::logger::error("No string content found in js value");
+                    return Err(Error::new(crate::errors::JSON_DESERIALIZATION_FAILED));
                 }
             },
             Err(error) => {
-                log::error(error.as_string().unwrap().as_str());
-                return Err(Error::JSON_DESERIALIZATION_FAILED);
+                fi_common::logger::error(error.as_string().unwrap().as_str());
+                return Err(Error::new(crate::errors::JSON_DESERIALIZATION_FAILED));
             }
         };
         Ok(Payload(match serde_json::from_str(json_string.as_str()) {
             Ok(val) => val,
             Err(_error) => {
-                // log::error(error.as_string().unwrap().as_str());
-                return Err(Error::JSON_DESERIALIZATION_FAILED);
+                // fi_common::logger::error(error.as_string().unwrap().as_str());
+                return Err(Error::new(crate::errors::JSON_DESERIALIZATION_FAILED));
             }
         }))
     }
@@ -238,7 +239,7 @@ impl JWT {
     /// Retrive jwt token from [`JWT`] token object
     pub fn to_token(&self) -> Result<String, Error> {
         if self.signature.is_none() {
-            return Err(Error::JWT_TOKEN_NOT_SIGNED);
+            return Err(Error::new(crate::errors::JWT_TOKEN_NOT_SIGNED));
         } else {
             let sig = self.signature.as_ref().unwrap();
             Ok(format!(
@@ -295,7 +296,9 @@ impl JWT {
         let exp_time = match DateTime::from_timestamp_millis(timestamp_secs * 1000) {
             Some(val) => val,
             None => {
-                return Err(Error::FAILED_TO_CONVERT_TIMESTAMP_TO_DATETTIME);
+                return Err(Error::new(
+                    crate::errors::FAILED_TO_CONVERT_TIMESTAMP_TO_DATETTIME,
+                ));
             }
         };
 
@@ -308,7 +311,7 @@ impl JWT {
 
         let signature = match &self.signature {
             Some(val) => val.clone(),
-            None => return Err(Error::JWT_NO_SIGNATURE_FOUND),
+            None => return Err(Error::new(crate::errors::JWT_NO_SIGNATURE_FOUND)),
         };
 
         let verified = match verify(
@@ -332,9 +335,13 @@ impl JWT {
         let exp = match self.payload.0.get("exp") {
             Some(val) => match val.as_i64() {
                 Some(val) => val,
-                None => return Err(Error::JWT_PAYLOAD_FIELD_EXP_IDENTIFICATION_ERROR),
+                None => {
+                    return Err(Error::new(
+                        crate::errors::JWT_PAYLOAD_FIELD_EXP_IDENTIFICATION_ERROR,
+                    ))
+                }
             },
-            None => return Err(Error::JWT_PAYLOAD_MISSING_FIELD_EXP),
+            None => return Err(Error::new(crate::errors::JWT_PAYLOAD_MISSING_FIELD_EXP)),
         };
 
         Self::check_if_expired(exp)
@@ -377,7 +384,7 @@ impl JWT {
     #[wasm_bindgen(js_name = "toToken")]
     pub fn to_token(&self) -> Result<String, Error> {
         if self.signature.is_none() {
-            return Err(Error::JWT_TOKEN_NOT_SIGNED);
+            return Err(Error::new(crate::errors::JWT_TOKEN_NOT_SIGNED));
         } else {
             let sig = self.signature.as_ref().unwrap();
             Ok(format!(
@@ -435,7 +442,9 @@ impl JWT {
         let exp_time = match DateTime::from_timestamp_millis(timestamp_secs * 1000) {
             Some(val) => val,
             None => {
-                return Err(Error::FAILED_TO_CONVERT_TIMESTAMP_TO_DATETTIME.to_string());
+                return Err(Error::new(
+                    crate::errors::FAILED_TO_CONVERT_TIMESTAMP_TO_DATETTIME.to_string(),
+                ));
             }
         };
 
@@ -449,7 +458,11 @@ impl JWT {
 
         let signature = match &self.signature {
             Some(val) => val.clone(),
-            None => return Err(Error::JWT_NO_SIGNATURE_FOUND.to_string()),
+            None => {
+                return Err(Error::new(
+                    crate::errors::JWT_NO_SIGNATURE_FOUND.to_string(),
+                ))
+            }
         };
 
         let verified = match verify(
@@ -473,9 +486,17 @@ impl JWT {
         let exp = match self.payload.0.get("exp") {
             Some(val) => match val.as_i64() {
                 Some(val) => val,
-                None => return Err(Error::JWT_PAYLOAD_FIELD_EXP_IDENTIFICATION_ERROR.to_string()),
+                None => {
+                    return Err(Error::new(
+                        crate::errors::JWT_PAYLOAD_FIELD_EXP_IDENTIFICATION_ERROR.to_string(),
+                    ))
+                }
             },
-            None => return Err(Error::JWT_PAYLOAD_MISSING_FIELD_EXP.to_string()),
+            None => {
+                return Err(Error::new(
+                    crate::errors::JWT_PAYLOAD_MISSING_FIELD_EXP.to_string(),
+                ))
+            }
         };
 
         Self::check_if_expired(exp)
@@ -502,8 +523,10 @@ impl JWT {
             let js_str = match serde_json::to_string(&token) {
                 Ok(val) => val,
                 Err(error) => {
-                    log::error(error.to_string().as_str());
-                    return Err(Error::JSON_DESERIALIZATION_FAILED.to_string());
+                    fi_common::logger::error(error.to_string().as_str());
+                    return Err(Error::new(
+                        crate::errors::JSON_DESERIALIZATION_FAILED.to_string(),
+                    ));
                 }
             };
 

@@ -1,6 +1,6 @@
 [package]
 name = "fi-digital-signatures"
-version = "0.0.5"
+version = "0.0.6"
 edition = "2021"
 repository = "https://github.com/Fidenz/fi_digital_signatures"
 authors = ["Ravindu <ravindu.w@gmail.com"]
@@ -21,6 +21,7 @@ base64-url = "3.0.0"
 chrono = "0.4.38" 
 ed25519-dalek = { version = "2.1.1", features = ["pkcs8", "pem"] }
 elliptic-curve = { version = "0.13.8", features = ["pem", "pkcs8"] }
+fi-common = "0.1.1"
 generic-array = "1.0.0"
 getrandom = { version = "0.2.14", features = ["js"] }
 hex = "0.4.3" 

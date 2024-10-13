@@ -1,4 +1,5 @@
-use crate::{algorithms::Algorithm, errors::Error};
+use crate::algorithms::Algorithm;
+use fi_common::error::Error;
 
 /// ECDSA based algorithms signing and verifying
 pub mod ecdsa;

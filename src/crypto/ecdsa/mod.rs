@@ -11,9 +11,10 @@ use self::{
     _384::{ec_384_sign, ec_384_verify},
     _512::{ec_512_sign, ec_512_verify},
 };
+use crate::algorithms::Algorithm;
 #[cfg(not(feature = "wasm"))]
 use crate::crypto::{SignFromKey, VerifyFromKey};
-use crate::{algorithms::Algorithm, errors::Error};
+use fi_common::error::Error;
 #[cfg(feature = "wasm")]
 use js_sys::Object;
 
@@ -34,7 +35,7 @@ pub fn sign_ec(message: String, key: impl SignFromKey, alg: Algorithm) -> Result
         Algorithm::ES384 => ec_384_sign(message, key),
         Algorithm::ES512 => ec_512_sign(message, key),
         Algorithm::ES256K => ec_256k_sign(message, key),
-        _ => return Err(Error::UNKNOWN_ALGORITHM),
+        _ => return Err(Error::new(crate::errors::UNKNOWN_ALGORITHM)),
     }
 }
 
@@ -69,7 +70,7 @@ pub fn sign_ec(message: String, key: Object, alg: Algorithm) -> Result<String, S
                 Err(error) => return Err(error.to_string()),
             },
         ),
-        _ => return Err(Error::UNKNOWN_ALGORITHM.to_string()),
+        _ => return Err(Error::new(crate::errors::UNKNOWN_ALGORITHM.to_string())),
     }
 }
 
@@ -86,7 +87,7 @@ pub fn verify_ec(
         Algorithm::ES384 => ec_384_verify(message, signature, key),
         Algorithm::ES512 => ec_512_verify(message, signature, key),
         Algorithm::ES256K => ec_256k_verify(message, signature, key),
-        _ => return Err(Error::UNKNOWN_ALGORITHM),
+        _ => return Err(Error::new(crate::errors::UNKNOWN_ALGORITHM)),
     }
 }
 
@@ -130,6 +131,6 @@ pub fn verify_ec(
                 Err(error) => return Err(error.to_string()),
             },
         ),
-        _ => return Err(Error::UNKNOWN_ALGORITHM.to_string()),
+        _ => return Err(Error::new(crate::errors::UNKNOWN_ALGORITHM.to_string())),
     }
 }

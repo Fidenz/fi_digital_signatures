@@ -9,7 +9,6 @@ pub mod crypto;
 pub mod errors;
 /// JWT token management
 pub mod jwt;
-pub mod log;
 /// Content signer
 pub mod signer;
 /// Signature verifier
