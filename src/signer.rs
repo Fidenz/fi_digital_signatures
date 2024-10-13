@@ -1,18 +1,15 @@
 #[cfg(not(feature = "wasm"))]
-use crate::crypto::SignFromKey;
+use crate::crypto::ecdsa::{
+    _256k::P256kSigningKey, _256::P256SigningKey, _384::P384SigningKey, _512::P512SigningKey,
+};
 #[cfg(feature = "wasm")]
-use crate::crypto::{eddsa::EDDSASigningKey, hmac::HMACKey, rsa::RsaSigningKey};
+use crate::crypto::hmac::HMACKey;
+#[cfg(not(feature = "wasm"))]
+use crate::crypto::SignFromKey;
+use crate::crypto::{ecdsa::sign_ec, eddsa::EDDSASigningKey, rsa::RsaSigningKey};
 use crate::{
     algorithms::{Algorithm, AlgorithmFamily},
-    crypto::{
-        ecdsa::{
-            _256k::P256kSigningKey, sign_ec, _256::P256SigningKey, _384::P384SigningKey,
-            _512::P512SigningKey,
-        },
-        eddsa::{sign_eddsa, EDDSASigningKey},
-        hmac::sign_hmac,
-        rsa::{sign_rsa, RsaSigningKey},
-    },
+    crypto::{eddsa::sign_eddsa, hmac::sign_hmac, rsa::sign_rsa},
 };
 use fi_common::error::Error;
 #[cfg(feature = "wasm")]
@@ -35,14 +32,14 @@ pub fn sign(message: String, key: impl SignFromKey, alg: Algorithm) -> Result<St
 
 #[cfg(feature = "wasm")]
 #[wasm_bindgen]
-pub fn sign(message: String, key: Object, alg: Algorithm) -> Result<String, String> {
+pub fn sign(message: String, key: Object, alg: Algorithm) -> Result<String, Error> {
     let alg_family = alg.get_family();
     match alg_family {
         AlgorithmFamily::HMAC => sign_hmac(
             message,
             match HMACKey::from_js_object(key) {
                 Ok(val) => val,
-                Err(error) => return Err(error.to_string()),
+                Err(error) => return Err(error),
             },
             alg,
         ),
@@ -50,7 +47,7 @@ pub fn sign(message: String, key: Object, alg: Algorithm) -> Result<String, Stri
             message,
             match RsaSigningKey::from_js_object(key) {
                 Ok(val) => val,
-                Err(error) => return Err(error.to_string()),
+                Err(error) => return Err(error),
             },
             alg,
         ),
@@ -59,14 +56,15 @@ pub fn sign(message: String, key: Object, alg: Algorithm) -> Result<String, Stri
             message,
             match EDDSASigningKey::from_js_object(key) {
                 Ok(val) => val,
-                Err(error) => return Err(error.to_string()),
+                Err(error) => return Err(error),
             },
             alg,
         ),
-        _ => return Err(Error::new(crate::errors::UNKNOWN_ALGORITHM.to_string())),
+        _ => return Err(Error::new(crate::errors::UNKNOWN_ALGORITHM)),
     }
 }
 
+#[cfg(not(feature = "wasm"))]
 pub fn get_signing_key(
     alg: Algorithm,
     key_bytes: &mut [u8],

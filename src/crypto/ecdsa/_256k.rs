@@ -365,10 +365,10 @@ pub fn ec_256k_sign(message: String, key: impl SignFromKey) -> Result<String, Er
 }
 
 #[cfg(feature = "wasm")]
-pub fn ec_256k_sign(message: String, key: impl SignFromKey) -> Result<String, String> {
+pub fn ec_256k_sign(message: String, key: impl SignFromKey) -> Result<String, Error> {
     match key.sign(message, Algorithm::ES256K) {
         Ok(val) => Ok(val),
-        Err(error) => Err(error.to_string()),
+        Err(error) => Err(error),
     }
 }
 
@@ -387,9 +387,9 @@ pub fn ec_256k_verify(
     message: String,
     sig: String,
     key: impl VerifyFromKey,
-) -> Result<bool, String> {
+) -> Result<bool, Error> {
     match key.verify(message, sig, Algorithm::ES256K) {
         Ok(val) => Ok(val),
-        Err(error) => Err(error.to_string()),
+        Err(error) => Err(error),
     }
 }

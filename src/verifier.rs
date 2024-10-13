@@ -1,18 +1,18 @@
 #[cfg(not(feature = "wasm"))]
-use crate::crypto::VerifyFromKey;
+use crate::crypto::ecdsa::{
+    _256k::P256kVerifyingKey, _256::P256VerifyingKey, _384::P384VerifyingKey,
+    _512::P512VerifyingKey,
+};
 #[cfg(feature = "wasm")]
-use crate::crypto::{eddsa::EDDSAVerifyingKey, hmac::HMACKey, rsa::RsaVerifyingKey};
+use crate::crypto::hmac::HMACKey;
+#[cfg(not(feature = "wasm"))]
+use crate::crypto::VerifyFromKey;
+use crate::crypto::{eddsa::EDDSAVerifyingKey, rsa::RsaVerifyingKey};
+#[cfg(feature = "wasm")]
+use crate::errors::UNKNOWN_ALGORITHM;
 use crate::{
     algorithms::{Algorithm, AlgorithmFamily},
-    crypto::{
-        ecdsa::{
-            _256k::P256kVerifyingKey, verify_ec, _256::P256VerifyingKey, _384::P384VerifyingKey,
-            _512::P512VerifyingKey,
-        },
-        eddsa::{verify_eddsa, EDDSAVerifyingKey},
-        hmac::verify_hmac,
-        rsa::{verify_rsa, RsaVerifyingKey},
-    },
+    crypto::{ecdsa::verify_ec, eddsa::verify_eddsa, hmac::verify_hmac, rsa::verify_rsa},
 };
 use fi_common::error::Error;
 #[cfg(feature = "wasm")]
@@ -45,7 +45,7 @@ pub fn verify(
     signature: String,
     key: Object,
     alg: Algorithm,
-) -> Result<bool, String> {
+) -> Result<bool, Error> {
     let alg_family = alg.get_family();
     match alg_family {
         AlgorithmFamily::HMAC => verify_hmac(
@@ -53,7 +53,7 @@ pub fn verify(
             signature,
             match HMACKey::from_js_object(key) {
                 Ok(val) => val,
-                Err(error) => return Err(error.to_string()),
+                Err(error) => return Err(error),
             },
             alg,
         ),
@@ -63,7 +63,7 @@ pub fn verify(
             signature,
             match RsaVerifyingKey::from_js_object(key) {
                 Ok(val) => val,
-                Err(error) => return Err(error.to_string()),
+                Err(error) => return Err(error),
             },
             alg,
         ),
@@ -72,14 +72,15 @@ pub fn verify(
             signature,
             match EDDSAVerifyingKey::from_js_object(key) {
                 Ok(val) => val,
-                Err(error) => return Err(error.to_string()),
+                Err(error) => return Err(error),
             },
             alg,
         ),
-        _ => return Err(Error::new(crate::errors::UNKNOWN_ALGORITHM.to_string())),
+        _ => return Err(Error::new(UNKNOWN_ALGORITHM)),
     }
 }
 
+#[cfg(not(feature = "wasm"))]
 pub fn get_verifying_key(
     alg: Algorithm,
     key_bytes: &mut [u8],
