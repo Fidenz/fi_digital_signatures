@@ -1,5 +1,3 @@
-use fi_common::error::Error;
-
 /// The private key identification failed
 pub const PRIVATE_KEY_IDENTIFICATION_ERROR: &'static str = "Error identifying private key";
 
