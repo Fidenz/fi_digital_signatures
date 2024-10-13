@@ -1,3 +1,7 @@
+#[cfg(not(feature = "wasm"))]
+use crate::crypto::SignFromKey;
+#[cfg(feature = "wasm")]
+use crate::crypto::{eddsa::EDDSASigningKey, hmac::HMACKey, rsa::RsaSigningKey};
 use crate::{
     algorithms::{Algorithm, AlgorithmFamily},
     crypto::{
@@ -9,13 +13,8 @@ use crate::{
         hmac::sign_hmac,
         rsa::{sign_rsa, RsaSigningKey},
     },
-    errors::Error,
 };
-
-#[cfg(not(feature = "wasm"))]
-use crate::crypto::SignFromKey;
-#[cfg(feature = "wasm")]
-use crate::crypto::{eddsa::EDDSASigningKey, hmac::HMACKey, rsa::RsaSigningKey};
+use fi_common::error::Error;
 #[cfg(feature = "wasm")]
 use js_sys::Object;
 #[cfg(feature = "wasm")]
@@ -30,7 +29,7 @@ pub fn sign(message: String, key: impl SignFromKey, alg: Algorithm) -> Result<St
         AlgorithmFamily::RSA => sign_rsa(message, key, alg),
         AlgorithmFamily::EC => sign_ec(message, key, alg),
         AlgorithmFamily::OKP => sign_eddsa(message, key, alg),
-        _ => return Err(Error::UNKNOWN_ALGORITHM),
+        _ => return Err(Error::new(crate::errors::UNKNOWN_ALGORITHM)),
     }
 }
 
@@ -64,7 +63,7 @@ pub fn sign(message: String, key: Object, alg: Algorithm) -> Result<String, Stri
             },
             alg,
         ),
-        _ => return Err(Error::UNKNOWN_ALGORITHM.to_string()),
+        _ => return Err(Error::new(crate::errors::UNKNOWN_ALGORITHM.to_string())),
     }
 }
 
@@ -113,9 +112,9 @@ pub fn get_signing_key(
             Ok(val) => return Ok(Box::new(val)),
             Err(error) => return Err(error),
         },
-        Algorithm::HS256 => return Err(Error::NOT_USING_ASYMMETRIC_KEYS),
-        Algorithm::HS384 => return Err(Error::NOT_USING_ASYMMETRIC_KEYS),
-        Algorithm::HS512 => return Err(Error::NOT_USING_ASYMMETRIC_KEYS),
+        Algorithm::HS256 => return Err(Error::new(crate::errors::NOT_USING_ASYMMETRIC_KEYS)),
+        Algorithm::HS384 => return Err(Error::new(crate::errors::NOT_USING_ASYMMETRIC_KEYS)),
+        Algorithm::HS512 => return Err(Error::new(crate::errors::NOT_USING_ASYMMETRIC_KEYS)),
         Algorithm::EdDSA => match EDDSASigningKey::from_bytes(key_bytes) {
             Ok(val) => return Ok(Box::new(val)),
             Err(error) => return Err(error),

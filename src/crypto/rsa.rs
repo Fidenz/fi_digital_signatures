@@ -1,6 +1,5 @@
-use crate::{
-    algorithms::Algorithm, crypto::SignFromKey, crypto::VerifyFromKey, errors::Error, log,
-};
+use crate::{algorithms::Algorithm, crypto::SignFromKey, crypto::VerifyFromKey};
+use fi_common::error::Error;
 #[cfg(feature = "wasm")]
 use js_sys::Object;
 use rsa::pkcs1::{DecodeRsaPrivateKey, DecodeRsaPublicKey};
@@ -33,15 +32,15 @@ fn get_rsa_private_key_from_pem(key_str: &str) -> Result<rsa::RsaPrivateKey, Err
         true => match rsa::RsaPrivateKey::from_pkcs1_pem(key_str) {
             Ok(val) => Ok(val),
             Err(error) => {
-                log::error(error.to_string().as_str());
-                return Err(Error::PRIVATE_KEY_IDENTIFICATION_ERROR);
+                fi_common::logger::error(error.to_string().as_str());
+                return Err(Error::new(crate::errors::PRIVATE_KEY_IDENTIFICATION_ERROR));
             }
         },
         false => match rsa::RsaPrivateKey::from_pkcs8_pem(key_str) {
             Ok(val) => Ok(val),
             Err(error) => {
-                log::error(error.to_string().as_str());
-                return Err(Error::PRIVATE_KEY_IDENTIFICATION_ERROR);
+                fi_common::logger::error(error.to_string().as_str());
+                return Err(Error::new(crate::errors::PRIVATE_KEY_IDENTIFICATION_ERROR));
             }
         },
     }
@@ -57,8 +56,8 @@ fn get_rsa_private_key_from_components(
     match rsa::RsaPrivateKey::from_components(n, e, d, vec![p, q]) {
         Ok(val) => Ok(val),
         Err(error) => {
-            log::error(error.to_string().as_str());
-            return Err(Error::PRIVATE_KEY_IDENTIFICATION_ERROR);
+            fi_common::logger::error(error.to_string().as_str());
+            return Err(Error::new(crate::errors::PRIVATE_KEY_IDENTIFICATION_ERROR));
         }
     }
 }
@@ -80,8 +79,8 @@ impl RsaSigningKey {
     pub fn from_bytes(bytes: &[u8]) -> Result<RsaSigningKey, Error> {
         let rsa_key = match rsa::RsaPrivateKey::from_pkcs8_der(bytes) {
             Err(error) => {
-                log::error(error.to_string().as_str());
-                return Err(Error::PRIVATE_KEY_IDENTIFICATION_ERROR);
+                fi_common::logger::error(error.to_string().as_str());
+                return Err(Error::new(crate::errors::PRIVATE_KEY_IDENTIFICATION_ERROR));
             }
             Ok(val) => val,
         };
@@ -145,7 +144,7 @@ impl RsaSigningKey {
                 BigUint::from_str(components[4].as_str()).unwrap(),
             )
         } else {
-            Err(Error::PRIVATE_KEY_IDENTIFICATION_ERROR)
+            Err(Error::new(crate::errors::PRIVATE_KEY_IDENTIFICATION_ERROR))
         }
     }
 
@@ -162,13 +161,13 @@ impl RsaSigningKey {
                 Ok(val) => {
                     let string_value = match val.as_string() {
                         Some(v) => v,
-                        None => return Err(Error::MISSING_FIELD),
+                        None => return Err(Error::new(crate::errors::MISSING_FIELD)),
                     };
                     string_value
                 }
                 Err(error) => {
-                    log::error(error.as_string().unwrap().as_str());
-                    return Err(Error::MISSING_FIELD);
+                    fi_common::logger::error(error.as_string().unwrap().as_str());
+                    return Err(Error::new(crate::errors::MISSING_FIELD));
                 }
             };
 
@@ -182,46 +181,46 @@ impl RsaSigningKey {
             let n = match js_sys::Reflect::get(&value, &n_field) {
                 Ok(val) => val.as_string().unwrap(),
                 Err(error) => {
-                    log::error(error.as_string().unwrap().as_str());
-                    return Err(Error::MISSING_FIELD);
+                    fi_common::logger::error(error.as_string().unwrap().as_str());
+                    return Err(Error::new(crate::errors::MISSING_FIELD));
                 }
             };
 
             let e = match js_sys::Reflect::get(&value, &e_field) {
                 Ok(val) => val.as_string().unwrap(),
                 Err(error) => {
-                    log::error(error.as_string().unwrap().as_str());
-                    return Err(Error::MISSING_FIELD);
+                    fi_common::logger::error(error.as_string().unwrap().as_str());
+                    return Err(Error::new(crate::errors::MISSING_FIELD));
                 }
             };
 
             let d = match js_sys::Reflect::get(&value, &d_field) {
                 Ok(val) => val.as_string().unwrap(),
                 Err(error) => {
-                    log::error(error.as_string().unwrap().as_str());
-                    return Err(Error::MISSING_FIELD);
+                    fi_common::logger::error(error.as_string().unwrap().as_str());
+                    return Err(Error::new(crate::errors::MISSING_FIELD));
                 }
             };
 
             let p = match js_sys::Reflect::get(&value, &p_field) {
                 Ok(val) => val.as_string().unwrap(),
                 Err(error) => {
-                    log::error(error.as_string().unwrap().as_str());
-                    return Err(Error::MISSING_FIELD);
+                    fi_common::logger::error(error.as_string().unwrap().as_str());
+                    return Err(Error::new(crate::errors::MISSING_FIELD));
                 }
             };
 
             let q = match js_sys::Reflect::get(&value, &q_field) {
                 Ok(val) => val.as_string().unwrap(),
                 Err(error) => {
-                    log::error(error.as_string().unwrap().as_str());
-                    return Err(Error::MISSING_FIELD);
+                    fi_common::logger::error(error.as_string().unwrap().as_str());
+                    return Err(Error::new(crate::errors::MISSING_FIELD));
                 }
             };
 
             return Ok(RsaSigningKey::from_components(n, e, d, p, q));
         } else {
-            Err(Error::MISSING_FIELD)
+            Err(Error::new(crate::errors::MISSING_FIELD))
         }
     }
 }
@@ -252,7 +251,7 @@ impl SignFromKey for RsaSigningKey {
                     let mut signing_key = rsa::pkcs1v15::SigningKey::<Sha512>::new(key);
                     signing_key.sign(message.as_bytes())
                 }
-                _ => return Err(Error::UNKNOWN_ALGORITHM),
+                _ => return Err(Error::new(crate::errors::UNKNOWN_ALGORITHM)),
             };
             let bytes = sig.to_bytes();
             Ok(base64_url::encode(&bytes))
@@ -270,7 +269,7 @@ impl SignFromKey for RsaSigningKey {
                     let signing_key = rsa::pss::SigningKey::<Sha512>::new(key);
                     signing_key.sign_with_rng(&mut rng, message.as_bytes())
                 }
-                _ => return Err(Error::UNKNOWN_ALGORITHM),
+                _ => return Err(Error::new(crate::errors::UNKNOWN_ALGORITHM)),
             };
 
             let bytes = sig.to_bytes();
@@ -294,15 +293,15 @@ fn get_public_key_from_pem(key_str: &str) -> Result<rsa::RsaPublicKey, Error> {
         true => match rsa::RsaPublicKey::from_pkcs1_pem(key_str) {
             Ok(val) => Ok(val),
             Err(error) => {
-                log::error(error.to_string().as_str());
-                return Err(Error::PRIVATE_KEY_IDENTIFICATION_ERROR);
+                fi_common::logger::error(error.to_string().as_str());
+                return Err(Error::new(crate::errors::PRIVATE_KEY_IDENTIFICATION_ERROR));
             }
         },
         false => match rsa::RsaPublicKey::from_public_key_pem(key_str) {
             Ok(val) => Ok(val),
             Err(error) => {
-                log::error(error.to_string().as_str());
-                return Err(Error::PRIVATE_KEY_IDENTIFICATION_ERROR);
+                fi_common::logger::error(error.to_string().as_str());
+                return Err(Error::new(crate::errors::PRIVATE_KEY_IDENTIFICATION_ERROR));
             }
         },
     }
@@ -324,8 +323,8 @@ impl RsaVerifyingKey {
     pub fn from_bytes(bytes: &[u8]) -> Result<RsaVerifyingKey, Error> {
         let rsa_key = match rsa::RsaPublicKey::from_public_key_der(bytes) {
             Err(error) => {
-                log::error(error.to_string().as_str());
-                return Err(Error::PRIVATE_KEY_IDENTIFICATION_ERROR);
+                fi_common::logger::error(error.to_string().as_str());
+                return Err(Error::new(crate::errors::PRIVATE_KEY_IDENTIFICATION_ERROR));
             }
             Ok(val) => val,
         };
@@ -354,19 +353,19 @@ impl RsaVerifyingKey {
                 Ok(val) => {
                     let string_value = match val.as_string() {
                         Some(v) => v,
-                        None => return Err(Error::MISSING_FIELD),
+                        None => return Err(Error::new(crate::errors::MISSING_FIELD)),
                     };
                     string_value
                 }
                 Err(error) => {
-                    log::error(error.as_string().unwrap().as_str());
-                    return Err(Error::MISSING_FIELD);
+                    fi_common::logger::error(error.as_string().unwrap().as_str());
+                    return Err(Error::new(crate::errors::MISSING_FIELD));
                 }
             };
 
             Ok(RsaVerifyingKey::from_pem(pem.as_str()))
         } else {
-            Err(Error::MISSING_FIELD)
+            Err(Error::new(crate::errors::MISSING_FIELD))
         }
     }
 }
@@ -385,8 +384,8 @@ impl VerifyFromKey for RsaVerifyingKey {
         let decoded_sig_data = match base64_url::decode(&signature) {
             Ok(val) => val,
             Err(error) => {
-                log::error(error.to_string().as_str());
-                return Err(Error::DECODING_ERROR);
+                fi_common::logger::error(error.to_string().as_str());
+                return Err(Error::new(crate::errors::DECODING_ERROR));
             }
         };
 
@@ -394,8 +393,8 @@ impl VerifyFromKey for RsaVerifyingKey {
             let sig = match rsa::pkcs1v15::Signature::try_from(decoded_sig_data.as_slice()) {
                 Ok(val) => val,
                 Err(error) => {
-                    log::error(error.to_string().as_str());
-                    return Err(Error::SIGNATURE_IDENTIFICATION_FAILED);
+                    fi_common::logger::error(error.to_string().as_str());
+                    return Err(Error::new(crate::errors::SIGNATURE_IDENTIFICATION_FAILED));
                 }
             };
 
@@ -412,7 +411,7 @@ impl VerifyFromKey for RsaVerifyingKey {
                     let verifying_key = rsa::pkcs1v15::VerifyingKey::<Sha512>::new(key);
                     verifying_key.verify(message.as_bytes(), &sig)
                 }
-                _ => return Err(Error::UNKNOWN_ALGORITHM),
+                _ => return Err(Error::new(crate::errors::UNKNOWN_ALGORITHM)),
             };
 
             if verification.is_ok() {
@@ -420,7 +419,7 @@ impl VerifyFromKey for RsaVerifyingKey {
             } else {
                 match verification.err() {
                     Some(val) => {
-                        log::error(val.to_string().as_str());
+                        fi_common::logger::error(val.to_string().as_str());
                     }
                     None => {}
                 }
@@ -430,8 +429,8 @@ impl VerifyFromKey for RsaVerifyingKey {
             let sig = match rsa::pss::Signature::try_from(decoded_sig_data.as_slice()) {
                 Ok(val) => val,
                 Err(error) => {
-                    log::error(error.to_string().as_str());
-                    return Err(Error::SIGNATURE_IDENTIFICATION_FAILED);
+                    fi_common::logger::error(error.to_string().as_str());
+                    return Err(Error::new(crate::errors::SIGNATURE_IDENTIFICATION_FAILED));
                 }
             };
 
@@ -448,7 +447,7 @@ impl VerifyFromKey for RsaVerifyingKey {
                     let verifying_key = rsa::pss::VerifyingKey::<Sha512>::new(key);
                     verifying_key.verify(message.as_bytes(), &sig)
                 }
-                _ => return Err(Error::UNKNOWN_ALGORITHM),
+                _ => return Err(Error::new(crate::errors::UNKNOWN_ALGORITHM)),
             };
 
             if verification.is_ok() {
@@ -456,7 +455,7 @@ impl VerifyFromKey for RsaVerifyingKey {
             } else {
                 match verification.err() {
                     Some(val) => {
-                        log::error(val.to_string().as_str());
+                        fi_common::logger::error(val.to_string().as_str());
                     }
                     None => {}
                 }

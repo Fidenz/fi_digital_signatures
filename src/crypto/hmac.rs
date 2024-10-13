@@ -1,4 +1,5 @@
-use crate::{algorithms::Algorithm, errors::Error, log};
+use crate::algorithms::Algorithm;
+use fi_common::error::Error;
 use generic_array::typenum::{IsLess, Le, NonZero, U256};
 use hmac::Hmac;
 use hmac::Mac;
@@ -49,8 +50,8 @@ impl HMACKey {
         let mut hmac_wrapper = match Hmac::<T>::new_from_slice(self.key.as_bytes()) {
             Ok(val) => val,
             Err(error) => {
-                log::error(error.to_string().as_str());
-                return Err(Error::HMAC_KEY_ERROR);
+                fi_common::logger::error(error.to_string().as_str());
+                return Err(Error::new(crate::errors::HMAC_KEY_ERROR));
             }
         };
 
@@ -75,16 +76,16 @@ impl HMACKey {
         let sig = match base64_url::decode(&signature) {
             Ok(val) => val,
             Err(error) => {
-                log::error(error.to_string().as_str());
-                return Err(Error::DECODING_ERROR);
+                fi_common::logger::error(error.to_string().as_str());
+                return Err(Error::new(crate::errors::DECODING_ERROR));
             }
         };
 
         let mut hmac_wrapper = match Hmac::<T>::new_from_slice(self.key.as_bytes()) {
             Ok(val) => val,
             Err(error) => {
-                log::error(error.to_string().as_str());
-                return Err(Error::HMAC_KEY_ERROR);
+                fi_common::logger::error(error.to_string().as_str());
+                return Err(Error::new(crate::errors::HMAC_KEY_ERROR));
             }
         };
 
@@ -93,7 +94,7 @@ impl HMACKey {
         match hmac_wrapper.verify_slice(sig.as_slice()) {
             Ok(()) => Ok(true),
             Err(error) => {
-                log::error(error.to_string().as_str());
+                fi_common::logger::error(error.to_string().as_str());
                 return Ok(false);
             }
         }
@@ -106,15 +107,15 @@ impl HMACKey {
             let phrase = match js_sys::Reflect::get(&value, &phrase) {
                 Ok(val) => val.as_string().unwrap(),
                 Err(error) => {
-                    log::error(error.as_string().unwrap().as_str());
-                    return Err(Error::MISSING_FIELD);
+                    fi_common::logger::error(error.as_string().unwrap().as_str());
+                    return Err(Error::new(crate::errors::MISSING_FIELD));
                 }
             };
 
             return Ok(HMACKey::new(phrase));
         }
 
-        Err(Error::MISSING_FIELD)
+        Err(Error::new(crate::errors::MISSING_FIELD))
     }
 }
 
@@ -124,7 +125,7 @@ impl SignFromKey for HMACKey {
             Algorithm::HS256 => self.hmac_sign::<Sha256>(content),
             Algorithm::HS384 => self.hmac_sign::<Sha384>(content),
             Algorithm::HS512 => self.hmac_sign::<Sha512>(content),
-            _ => Err(Error::UNKNOWN_ALGORITHM),
+            _ => Err(Error::new(crate::errors::UNKNOWN_ALGORITHM)),
         }
     }
 }
@@ -135,7 +136,7 @@ impl VerifyFromKey for HMACKey {
             Algorithm::HS256 => self.hmac_verify::<Sha256>(content, signature),
             Algorithm::HS384 => self.hmac_verify::<Sha384>(content, signature),
             Algorithm::HS512 => self.hmac_verify::<Sha512>(content, signature),
-            _ => Err(Error::UNKNOWN_ALGORITHM),
+            _ => Err(Error::new(crate::errors::UNKNOWN_ALGORITHM)),
         }
     }
 }

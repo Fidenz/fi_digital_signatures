@@ -3,10 +3,9 @@ use std::str::FromStr;
 use crate::{
     algorithms::Algorithm,
     crypto::{SignFromKey, VerifyFromKey},
-    errors::Error,
-    log,
 };
 use elliptic_curve::pkcs8::DecodePublicKey;
+use fi_common::error::Error;
 #[cfg(feature = "wasm")]
 use js_sys::{Object, Uint8Array};
 use p384::{
@@ -47,8 +46,8 @@ impl SignFromKey for P384SigningKey {
         let signature = match sig_result {
             Ok(val) => val,
             Err(error) => {
-                log::error(error.to_string().as_str());
-                return Err(Error::SIGNING_FAILED);
+                fi_common::logger::error(error.to_string().as_str());
+                return Err(Error::new(crate::errors::SIGNING_FAILED));
             }
         };
 
@@ -63,16 +62,16 @@ fn get_private_key_from_pem(key_str: &str) -> Result<SigningKey, Error> {
                 match elliptic_curve::SecretKey::from_sec1_pem(key_str) {
                     Ok(val) => val,
                     Err(error) => {
-                        log::error(error.to_string().as_str());
-                        return Err(Error::EC_PEM_ERROR);
+                        fi_common::logger::error(error.to_string().as_str());
+                        return Err(Error::new(crate::errors::EC_PEM_ERROR));
                     }
                 };
 
             match SigningKey::from_bytes(&key_scalar.as_scalar_primitive().to_bytes()) {
                 Ok(val) => Ok(val),
                 Err(error) => {
-                    log::error(error.to_string().as_str());
-                    return Err(Error::PRIVATE_KEY_IDENTIFICATION_ERROR);
+                    fi_common::logger::error(error.to_string().as_str());
+                    return Err(Error::new(crate::errors::PRIVATE_KEY_IDENTIFICATION_ERROR));
                 }
             }
         }
@@ -81,16 +80,16 @@ fn get_private_key_from_pem(key_str: &str) -> Result<SigningKey, Error> {
                 match elliptic_curve::SecretKey::from_str(key_str) {
                     Ok(val) => val,
                     Err(error) => {
-                        log::error(error.to_string().as_str());
-                        return Err(Error::EC_PEM_ERROR);
+                        fi_common::logger::error(error.to_string().as_str());
+                        return Err(Error::new(crate::errors::EC_PEM_ERROR));
                     }
                 };
 
             match SigningKey::from_bytes(&key_scalar.as_scalar_primitive().to_bytes()) {
                 Ok(val) => Ok(val),
                 Err(error) => {
-                    log::error(error.to_string().as_str());
-                    return Err(Error::PRIVATE_KEY_IDENTIFICATION_ERROR);
+                    fi_common::logger::error(error.to_string().as_str());
+                    return Err(Error::new(crate::errors::PRIVATE_KEY_IDENTIFICATION_ERROR));
                 }
             }
         }
@@ -101,8 +100,8 @@ fn get_private_key_from_bytes(bytes: &[u8]) -> Result<SigningKey, Error> {
     match SigningKey::from_slice(bytes) {
         Ok(val) => Ok(val),
         Err(error) => {
-            log::error(error.to_string().as_str());
-            return Err(Error::PUBLIC_KEY_IDENTIFICATION_ERROR);
+            fi_common::logger::error(error.to_string().as_str());
+            return Err(Error::new(crate::errors::PUBLIC_KEY_IDENTIFICATION_ERROR));
         }
     }
 }
@@ -159,7 +158,7 @@ impl P384SigningKey {
         } else if key_bytes.is_some() {
             get_private_key_from_bytes(key_bytes.unwrap().as_mut_slice())
         } else {
-            Err(Error::PRIVATE_KEY_IDENTIFICATION_ERROR)
+            Err(Error::new(crate::errors::PRIVATE_KEY_IDENTIFICATION_ERROR))
         }
     }
 
@@ -171,13 +170,13 @@ impl P384SigningKey {
                 Ok(val) => {
                     let string_value = match val.as_string() {
                         Some(v) => v,
-                        None => return Err(Error::MISSING_FIELD),
+                        None => return Err(Error::new(crate::errors::MISSING_FIELD)),
                     };
                     string_value
                 }
                 Err(error) => {
-                    log::error(error.as_string().unwrap().as_str());
-                    return Err(Error::MISSING_FIELD);
+                    fi_common::logger::error(error.as_string().unwrap().as_str());
+                    return Err(Error::new(crate::errors::MISSING_FIELD));
                 }
             };
 
@@ -188,7 +187,7 @@ impl P384SigningKey {
 
             return Ok(P384SigningKey::from_bytes(bytes));
         } else {
-            Err(Error::MISSING_FIELD)
+            Err(Error::new(crate::errors::MISSING_FIELD))
         }
     }
 }
@@ -210,16 +209,16 @@ impl VerifyFromKey for P384VerifyingKey {
         let decoded_sig = match base64_url::decode(signature.as_bytes()) {
             Ok(val) => val,
             Err(error) => {
-                log::error(error.to_string().as_str());
-                return Err(Error::DECODING_ERROR);
+                fi_common::logger::error(error.to_string().as_str());
+                return Err(Error::new(crate::errors::DECODING_ERROR));
             }
         };
 
         let sig = match Signature::from_slice(&decoded_sig) {
             Ok(val) => val,
             Err(error) => {
-                log::error(error.to_string().as_str());
-                return Err(Error::SIGNATURE_IDENTIFICATION_FAILED);
+                fi_common::logger::error(error.to_string().as_str());
+                return Err(Error::new(crate::errors::SIGNATURE_IDENTIFICATION_FAILED));
             }
         };
 
@@ -237,7 +236,7 @@ impl VerifyFromKey for P384VerifyingKey {
         } else {
             match verify_result.err() {
                 Some(error) => {
-                    log::error(error.to_string().as_str());
+                    fi_common::logger::error(error.to_string().as_str());
                 }
                 None => {}
             };
@@ -251,15 +250,15 @@ fn get_public_key_from_pem(key_str: &str) -> Result<VerifyingKey, Error> {
         match elliptic_curve::PublicKey::from_public_key_pem(key_str) {
             Ok(val) => val,
             Err(error) => {
-                log::error(error.to_string().as_str());
-                return Err(Error::EC_PEM_ERROR);
+                fi_common::logger::error(error.to_string().as_str());
+                return Err(Error::new(crate::errors::EC_PEM_ERROR));
             }
         };
     match VerifyingKey::from_sec1_bytes(&key_scalar.to_sec1_bytes()) {
         Ok(val) => Ok(val),
         Err(error) => {
-            log::error(error.to_string().as_str());
-            return Err(Error::PUBLIC_KEY_IDENTIFICATION_ERROR);
+            fi_common::logger::error(error.to_string().as_str());
+            return Err(Error::new(crate::errors::PUBLIC_KEY_IDENTIFICATION_ERROR));
         }
     }
 }
@@ -268,8 +267,8 @@ fn get_public_key_from_bytes(bytes: &[u8]) -> Result<VerifyingKey, Error> {
     match VerifyingKey::from_sec1_bytes(bytes) {
         Ok(val) => Ok(val),
         Err(error) => {
-            log::error(error.to_string().as_str());
-            return Err(Error::PUBLIC_KEY_IDENTIFICATION_ERROR);
+            fi_common::logger::error(error.to_string().as_str());
+            return Err(Error::new(crate::errors::PUBLIC_KEY_IDENTIFICATION_ERROR));
         }
     }
 }
@@ -327,7 +326,7 @@ impl P384VerifyingKey {
         } else if key_bytes.is_some() {
             get_public_key_from_bytes(key_bytes.unwrap().as_mut_slice())
         } else {
-            Err(Error::PUBLIC_KEY_IDENTIFICATION_ERROR)
+            Err(Error::new(crate::errors::PUBLIC_KEY_IDENTIFICATION_ERROR))
         }
     }
 
@@ -338,13 +337,13 @@ impl P384VerifyingKey {
                 Ok(val) => {
                     let string_value = match val.as_string() {
                         Some(v) => v,
-                        None => return Err(Error::MISSING_FIELD),
+                        None => return Err(Error::new(crate::errors::MISSING_FIELD)),
                     };
                     string_value
                 }
                 Err(error) => {
-                    log::error(error.as_string().unwrap().as_str());
-                    return Err(Error::MISSING_FIELD);
+                    fi_common::logger::error(error.as_string().unwrap().as_str());
+                    return Err(Error::new(crate::errors::MISSING_FIELD));
                 }
             };
 
@@ -355,7 +354,7 @@ impl P384VerifyingKey {
 
             return Ok(P384VerifyingKey::from_bytes(bytes));
         } else {
-            Err(Error::MISSING_FIELD)
+            Err(Error::new(crate::errors::MISSING_FIELD))
         }
     }
 }

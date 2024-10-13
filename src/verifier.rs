@@ -13,8 +13,8 @@ use crate::{
         hmac::verify_hmac,
         rsa::{verify_rsa, RsaVerifyingKey},
     },
-    errors::Error,
 };
+use fi_common::error::Error;
 #[cfg(feature = "wasm")]
 use js_sys::Object;
 #[cfg(feature = "wasm")]
@@ -34,7 +34,7 @@ pub fn verify(
         AlgorithmFamily::EC => verify_ec(message, signature, key, alg),
         AlgorithmFamily::RSA => verify_rsa(message, signature, key, alg),
         AlgorithmFamily::OKP => verify_eddsa(message, signature, key, alg),
-        _ => return Err(Error::UNKNOWN_ALGORITHM),
+        _ => return Err(Error::new(crate::errors::UNKNOWN_ALGORITHM)),
     }
 }
 
@@ -76,7 +76,7 @@ pub fn verify(
             },
             alg,
         ),
-        _ => return Err(Error::UNKNOWN_ALGORITHM.to_string()),
+        _ => return Err(Error::new(crate::errors::UNKNOWN_ALGORITHM.to_string())),
     }
 }
 
@@ -125,9 +125,9 @@ pub fn get_verifying_key(
             Ok(val) => return Ok(Box::new(val)),
             Err(error) => return Err(error),
         },
-        Algorithm::HS256 => return Err(Error::NOT_USING_ASYMMETRIC_KEYS),
-        Algorithm::HS384 => return Err(Error::NOT_USING_ASYMMETRIC_KEYS),
-        Algorithm::HS512 => return Err(Error::NOT_USING_ASYMMETRIC_KEYS),
+        Algorithm::HS256 => return Err(Error::new(crate::errors::NOT_USING_ASYMMETRIC_KEYS)),
+        Algorithm::HS384 => return Err(Error::new(crate::errors::NOT_USING_ASYMMETRIC_KEYS)),
+        Algorithm::HS512 => return Err(Error::new(crate::errors::NOT_USING_ASYMMETRIC_KEYS)),
         Algorithm::EdDSA => match EDDSAVerifyingKey::from_bytes(key_bytes) {
             Ok(val) => return Ok(Box::new(val)),
             Err(error) => return Err(error),
