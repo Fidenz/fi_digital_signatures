@@ -285,7 +285,7 @@ dependencies = [
 
 [[package]]
 name = "fi-digital-signatures"
-version = "0.0.5"
+version = "0.0.6"
 dependencies = [
  "base64",
  "base64-url",
